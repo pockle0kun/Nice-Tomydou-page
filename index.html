@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <meta name="description" content="ナイストミードウ（富道）！！ 公式スコア計算機">
+  <meta name="description" content="ナイストミードウ（富道）！！ スコア計算タイム">
   <title>ナイストミードウ（富道）！！</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Noto+Serif+JP:wght@700;900&family=JetBrains+Mono:wght@600;800&display=swap');
@@ -152,8 +152,8 @@
       asset:         { label: "資産",     min: 20, max: 100 },
       competence:    { label: "能力",     min: 0,  max: 100 },
       relationships: { label: "人間関係", min: 0,  max: 60 },
-      luck:          { label: "運",       min: 10, max: 40 },
-      mind:          { label: "起業精神", min: 0,  max: 80 },
+      luck:          { label: "富度",       min: 10, max: 40 },
+      mind:          { label: "心の強さ", min: 0,  max: 80 },
     };
     const RADAR_KEYS = ["asset", "competence", "relationships", "luck", "mind"];
     const normalize = (v, min, max) => Math.max(0, Math.min(100, ((v - min) / (max - min)) * 100));
@@ -290,8 +290,8 @@
       { id: "asset",         en: "Asset",         jp: "資産",     color: "#D97706" },
       { id: "competence",    en: "Competence",    jp: "能力",     color: "#0D9488" },
       { id: "relationships", en: "Relationships", jp: "人間関係", color: "#DB2777" },
-      { id: "luck",          en: "Luck",          jp: "運",       color: "#7C3AED" },
-      { id: "mind",          en: "Mind",          jp: "精神",     color: "#16A34A" },
+      { id: "luck",          en: "Luck",          jp: "富度",       color: "#7C3AED" },
+      { id: "mind",          en: "Mind",          jp: "心の強さ",     color: "#16A34A" },
     ];
 
     function calcScores({ finalAsset, knowledge, green, red, blue, evSt, survey }) {
@@ -381,7 +381,7 @@
                   <div className="ct">プレイヤー情報</div>
                   <label className="lbl">プレイヤー名</label>
                   <input className="inp" type="text" value={fp.playerName}
-                    onChange={(e) => upFp("playerName", e.target.value)} placeholder="例: 山田 太郎" maxLength={20} />
+                    onChange={(e) => upFp("playerName", e.target.value)} placeholder="例: ともっぴ" maxLength={20} />
                 </div>
 
                 <div className="card">
