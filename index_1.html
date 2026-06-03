@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="description" content="ナイストミードウ（富道）！！ 公式スコア計算機">
+  <title>ナイストミードウ（富道）！！</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Noto+Serif+JP:wght@700;900&family=JetBrains+Mono:wght@600;800&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      background: #F5F6FA;
+      color: #1F2937;
+      font-family: 'Noto Sans JP', sans-serif;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    #loader { display: flex; justify-content: center; align-items: center; height: 100vh; color: #9CA3AF; font-size: 13px; letter-spacing: 2px; }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 80px; }
+
+    /* === HEADER === */
+    .hdr { text-align: center; padding: 14px 0 24px; border-bottom: 1px solid rgba(0,0,0,0.08); margin-bottom: 28px; }
+    .logo-main { font-family: 'Noto Serif JP', serif; font-size: 26px; font-weight: 900; letter-spacing: 1px; color: #1F2937; line-height: 1.2; }
+    .logo-main em { font-style: normal; background: linear-gradient(135deg, #8B5CF6, #EC4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .logo-sub { font-family: 'Noto Serif JP', serif; font-size: 13px; letter-spacing: 8px; color: #8B5CF6; margin-top: 6px; font-weight: 700; }
+    .tagline { font-size: 11px; color: #6B7280; letter-spacing: 2px; margin-top: 8px; }
+    .steps { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 18px; flex-wrap: wrap; }
+    .stp { display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 14px; font-size: 11px; }
+    .stp.act { background: rgba(139,92,246,0.1); color: #6D28D9; border: 1px solid rgba(139,92,246,0.3); }
+    .stp.don { color: #047857; }
+    .stp.idl { color: rgba(0,0,0,0.3); }
+    .stp-n { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; background: rgba(0,0,0,0.06); color: #6B7280; }
+    .stp.act .stp-n { background: #8B5CF6; color: #fff; }
+    .stp.don .stp-n { background: rgba(16,185,129,0.2); color: #047857; }
+    .sdiv { width: 14px; height: 1px; background: rgba(0,0,0,0.1); }
+
+    .fin { animation: fi 0.35s ease both; }
+    @keyframes fi { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* === COMMON === */
+    .ph-ttl { font-size: 19px; font-weight: 700; margin-bottom: 4px; color: #1F2937; }
+    .ph-sub { font-size: 12px; color: #6B7280; margin-bottom: 22px; line-height: 1.5; }
+    .card { background: #FFFFFF; border: 1px solid rgba(0,0,0,0.06); border-radius: 12px; padding: 18px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+    .ct { font-size: 10px; font-weight: 700; color: #6B7280; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; }
+    .lbl { font-size: 11px; color: #4B5563; display: block; margin-bottom: 5px; margin-top: 12px; font-weight: 500; }
+    .lbl:first-of-type { margin-top: 0; }
+    .inp { width: 100%; background: #F9FAFB; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 10px 12px; color: #1F2937; font-size: 15px; font-family: inherit; outline: none; transition: all 0.15s; -webkit-appearance: none; -moz-appearance: textfield; }
+    .inp::-webkit-inner-spin-button, .inp::-webkit-outer-spin-button { -webkit-appearance: none; }
+    .inp:focus { border-color: #8B5CF6; background: #FFFFFF; box-shadow: 0 0 0 3px rgba(139,92,246,0.1); }
+    .inp::placeholder { color: #D1D5DB; }
+    .r3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .sc2 { background: #F9FAFB; border-radius: 9px; padding: 14px 8px; text-align: center; border: 1px solid rgba(0,0,0,0.04); }
+
+    /* === EVENTS === */
+    .evgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-bottom: 18px; }
+    .evc { background: #FFFFFF; border: 1px solid rgba(0,0,0,0.08); border-radius: 10px; padding: 14px 12px; cursor: pointer; transition: all 0.15s; user-select: none; }
+    .evc:hover { border-color: rgba(139,92,246,0.4); background: rgba(139,92,246,0.02); }
+    .evc.sel { border-color: #8B5CF6; background: rgba(139,92,246,0.06); box-shadow: 0 0 0 2px rgba(139,92,246,0.1); }
+    .evn { font-size: 13px; font-weight: 600; line-height: 1.35; color: #1F2937; }
+    .det { margin-top: 11px; padding-top: 11px; border-top: 1px solid rgba(0,0,0,0.06); }
+    .dq { font-size: 11px; color: #4B5563; margin-bottom: 6px; line-height: 1.4; }
+    .rbg { display: flex; gap: 5px; flex-wrap: wrap; }
+    .rb { padding: 5px 10px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.12); background: #FFFFFF; color: #4B5563; cursor: pointer; font-size: 11px; font-family: inherit; transition: all 0.15s; }
+    .rb:hover { border-color: rgba(139,92,246,0.45); background: rgba(139,92,246,0.04); }
+    .rb.on { background: #8B5CF6; border-color: #8B5CF6; color: #FFFFFF; }
+    .smli { width: 100%; background: #F9FAFB; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 6px 9px; color: #1F2937; font-size: 12px; outline: none; margin-top: 6px; font-family: inherit; -webkit-appearance: none; -moz-appearance: textfield; }
+    .smli::-webkit-inner-spin-button, .smli::-webkit-outer-spin-button { -webkit-appearance: none; }
+    .smli:focus { border-color: #8B5CF6; }
+
+    /* === SURVEY === */
+    .qt { font-size: 13px; line-height: 1.7; margin-bottom: 12px; color: #1F2937; }
+    .lk { display: flex; gap: 5px; }
+    .lkb { flex: 1; padding: 12px 0; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: #FFFFFF; color: #6B7280; cursor: pointer; font-size: 15px; font-weight: 700; font-family: inherit; transition: all 0.15s; }
+    .lkb:hover { border-color: rgba(139,92,246,0.5); background: rgba(139,92,246,0.04); }
+    .lkb.on { background: #8B5CF6; border-color: #8B5CF6; color: #FFFFFF; box-shadow: 0 2px 8px rgba(139,92,246,0.25); }
+    .lkll { display: flex; justify-content: space-between; font-size: 9px; color: #9CA3AF; margin-top: 6px; }
+    .qn { font-size: 9px; color: #9CA3AF; margin-bottom: 4px; letter-spacing: 1px; font-weight: 600; }
+
+    /* === BUTTONS === */
+    .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #8B5CF6, #6366F1); border: none; border-radius: 10px; color: #FFFFFF; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s; margin-top: 4px; letter-spacing: 0.5px; box-shadow: 0 2px 8px rgba(139,92,246,0.25); }
+    .btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(139,92,246,0.35); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+    .bk { background: transparent; border: 1px solid rgba(0,0,0,0.12); border-radius: 7px; color: #6B7280; padding: 6px 12px; cursor: pointer; font-size: 12px; font-family: inherit; transition: all 0.15s; margin-bottom: 18px; }
+    .bk:hover { border-color: #8B5CF6; color: #6D28D9; background: rgba(139,92,246,0.04); }
+
+    /* === CERTIFICATE === */
+    .cert { position: relative; text-align: center; background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); border: 1px solid #F5C842; border-radius: 14px; padding: 28px 20px 22px; margin-bottom: 16px; box-shadow: 0 4px 16px rgba(245, 158, 11, 0.12); animation: certIn 0.6s ease-out 0.1s both; overflow: hidden; }
+    .cert::before { content: ''; position: absolute; inset: 7px; border: 1px dashed rgba(180, 83, 9, 0.3); border-radius: 10px; pointer-events: none; }
+    @keyframes certIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+    .cert-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 4px; color: #B45309; margin-bottom: 8px; position: relative; }
+    .cert-game { font-family: 'Noto Serif JP', serif; font-size: 12px; color: #92400E; letter-spacing: 2px; margin-bottom: 18px; font-weight: 700; position: relative; }
+    .cert-name { font-family: 'Noto Serif JP', serif; font-size: 24px; font-weight: 700; color: #1F2937; position: relative; margin-bottom: 4px; }
+    .cert-name span { font-size: 14px; color: #78716C; margin-left: 6px; font-weight: 500; }
+    .cert-date { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #78716C; letter-spacing: 3px; position: relative; }
+
+    /* === GRADE CARD === */
+    .grade-card { position: relative; text-align: center; background: #FFFFFF; border-radius: 16px; padding: 32px 20px 28px; margin-bottom: 16px; border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 4px 20px rgba(0,0,0,0.04); overflow: hidden; }
+    .grade-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at top, var(--g-color, transparent) 0%, transparent 60%); opacity: 0.1; pointer-events: none; }
+    .grade-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 4px; color: #9CA3AF; margin-bottom: 18px; position: relative; }
+    .grade-badge { width: 130px; height: 130px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 64px; font-weight: 900; color: #FFFFFF; margin-bottom: 18px; position: relative; animation: badgeIn 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both; overflow: hidden; }
+    .grade-badge::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%); background-size: 250% 100%; animation: shine 3.5s ease-in-out 1.2s infinite; }
+    @keyframes badgeIn { 0% { transform: scale(0) rotate(-180deg); opacity: 0; } 60% { transform: scale(1.1) rotate(10deg); } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+    @keyframes shine { 0% { background-position: 150% 0; } 100% { background-position: -150% 0; } }
+    .grade-S { background: linear-gradient(135deg, #FCD34D, #F59E0B); box-shadow: 0 10px 30px rgba(245, 158, 11, 0.45); }
+    .grade-A { background: linear-gradient(135deg, #C4B5FD, #8B5CF6); box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4); }
+    .grade-B { background: linear-gradient(135deg, #93C5FD, #3B82F6); box-shadow: 0 10px 30px rgba(59, 130, 246, 0.35); }
+    .grade-C { background: linear-gradient(135deg, #D1D5DB, #6B7280); box-shadow: 0 10px 22px rgba(107, 114, 128, 0.25); }
+    .grade-D { background: linear-gradient(135deg, #E5E7EB, #9CA3AF); box-shadow: 0 10px 22px rgba(156, 163, 175, 0.22); }
+    .grade-title { font-family: 'Noto Serif JP', serif; font-size: 24px; font-weight: 900; color: #1F2937; margin-bottom: 6px; position: relative; letter-spacing: 2px; }
+    .grade-pct { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #6B7280; margin-bottom: 14px; position: relative; letter-spacing: 2px; }
+    .grade-pct strong { color: #1F2937; font-size: 22px; font-weight: 900; margin: 0 4px; }
+    .grade-msg { font-size: 13px; color: #4B5563; line-height: 1.65; position: relative; padding: 10px 16px; background: rgba(0,0,0,0.025); border-radius: 8px; display: inline-block; }
+
+    /* === RADAR CHART === */
+    .chart-card { background: #FFFFFF; border: 1px solid rgba(0,0,0,0.06); border-radius: 14px; padding: 20px 14px 12px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+    .chart-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 3px; color: #9CA3AF; text-align: center; margin-bottom: 6px; }
+
+    /* === SCORE CARDS === */
+    .scards-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 3px; color: #9CA3AF; text-align: center; margin: 22px 0 12px; }
+    .scard { border-radius: 12px; padding: 16px 20px; margin-bottom: 10px; background: #FFFFFF; border: 1px solid rgba(0,0,0,0.06); }
+    .scard-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .sc-en { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; opacity: 0.75; font-weight: 600; }
+    .sc-jp { font-size: 18px; font-weight: 700; margin-top: 2px; }
+    .sc-v { font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 800; line-height: 1; }
+    .progress { width: 100%; height: 6px; background: rgba(0,0,0,0.06); border-radius: 3px; overflow: hidden; }
+    .progress-bar { height: 100%; border-radius: 3px; transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
+
+    @media (max-width: 500px) {
+      .evgrid { grid-template-columns: 1fr 1fr; }
+      .sc-v { font-size: 26px; }
+      .scard { padding: 14px 16px; }
+      .logo-main { font-size: 22px; }
+      .cert-name { font-size: 20px; }
+      .grade-badge { width: 110px; height: 110px; font-size: 54px; }
+      .grade-title { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"><div id="loader">読み込み中...</div></div>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+
+  <script type="text/babel" data-presets="env,react">
+    const { useState, useEffect, useRef, Fragment } = React;
+
+    const AXIS_CONFIG = {
+      asset:         { label: "資産",     min: 20, max: 100 },
+      competence:    { label: "能力",     min: 0,  max: 100 },
+      relationships: { label: "人間関係", min: 0,  max: 60 },
+      luck:          { label: "運",       min: 10, max: 40 },
+      mind:          { label: "起業精神", min: 0,  max: 80 },
+    };
+    const RADAR_KEYS = ["asset", "competence", "relationships", "luck", "mind"];
+    const normalize = (v, min, max) => Math.max(0, Math.min(100, ((v - min) / (max - min)) * 100));
+
+    const GRADES = {
+      S: { letter: "S", title: "富道覇者", color: "#F59E0B", msg: "極めし者よ、栄光あれ！富道の頂に立つ。" },
+      A: { letter: "A", title: "達人",     color: "#8B5CF6", msg: "輝かしき人生の歩み。称賛に値する。" },
+      B: { letter: "B", title: "堅実派",   color: "#3B82F6", msg: "着実に道を進む者。確かな足取り。" },
+      C: { letter: "C", title: "平凡",     color: "#6B7280", msg: "もう一歩。さらなる飛躍を期待。" },
+      D: { letter: "D", title: "修行中",   color: "#9CA3AF", msg: "ここからが本番。次の富道へ進もう。" },
+    };
+    function calcGrade(scores) {
+      const pcts = RADAR_KEYS.map(k => normalize(scores[k], AXIS_CONFIG[k].min, AXIS_CONFIG[k].max));
+      const avg = pcts.reduce((a, b) => a + b, 0) / pcts.length;
+      let g;
+      if (avg >= 80) g = GRADES.S;
+      else if (avg >= 65) g = GRADES.A;
+      else if (avg >= 50) g = GRADES.B;
+      else if (avg >= 35) g = GRADES.C;
+      else g = GRADES.D;
+      return { ...g, avg };
+    }
+
+    function ResultRadarChart({ scores }) {
+      const canvasRef = useRef(null);
+      const chartRef = useRef(null);
+      useEffect(() => {
+        if (!canvasRef.current) return;
+        const normData = RADAR_KEYS.map(k => normalize(scores[k], AXIS_CONFIG[k].min, AXIS_CONFIG[k].max));
+        const actual = RADAR_KEYS.map(k => scores[k]);
+        if (chartRef.current) chartRef.current.destroy();
+        chartRef.current = new Chart(canvasRef.current, {
+          type: "radar",
+          data: {
+            labels: RADAR_KEYS.map(k => AXIS_CONFIG[k].label),
+            datasets: [{
+              label: "あなたのスコア", data: normData,
+              backgroundColor: "rgba(99, 102, 241, 0.2)",
+              borderColor: "rgba(99, 102, 241, 1)",
+              borderWidth: 2,
+              pointBackgroundColor: "rgba(99, 102, 241, 1)",
+              pointBorderColor: "#fff",
+              pointHoverBackgroundColor: "#fff",
+              pointHoverBorderColor: "rgba(99, 102, 241, 1)",
+              pointRadius: 4, pointHoverRadius: 6,
+            }],
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: { r: {
+              min: 0, max: 100, beginAtZero: true,
+              ticks: { display: false, stepSize: 20 },
+              angleLines: { color: "rgba(0, 0, 0, 0.08)" },
+              grid: { color: "rgba(0, 0, 0, 0.08)" },
+              pointLabels: { font: { size: 13, weight: "600" }, color: "#1F2937" },
+            }},
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: "rgba(255, 255, 255, 0.98)",
+                borderColor: "rgba(99, 102, 241, 0.4)",
+                borderWidth: 1, titleColor: "#1F2937", bodyColor: "#374151", padding: 10,
+                callbacks: {
+                  label: (ctx) => {
+                    const a = actual[ctx.dataIndex];
+                    const d = typeof a === "number" ? (a % 1 === 0 ? a.toString() : a.toFixed(2)) : a;
+                    return `スコア: ${d}`;
+                  },
+                },
+              },
+            },
+          },
+        });
+        return () => { if (chartRef.current) { chartRef.current.destroy(); chartRef.current = null; } };
+      }, [scores]);
+      return <div style={{ position: "relative", width: "100%", height: 360 }}><canvas ref={canvasRef} /></div>;
+    }
+
+    function ProgressBar({ pct, color }) {
+      const [w, setW] = useState(0);
+      useEffect(() => {
+        const t = setTimeout(() => setW(pct), 200);
+        return () => clearTimeout(t);
+      }, [pct]);
+      return <div className="progress"><div className="progress-bar" style={{ width: `${w}%`, background: color }} /></div>;
+    }
+
+    const EVENTS = [
+      { id: "nisa",    name: "積立NISAをやる",       a: 5,  c: 5,   r: 0,  l: 0,  m: 0, act: true },
+      { id: "ideco",   name: "iDeCoをやる",          a: 5,  c: 5,   r: 0,  l: 0,  m: 0, act: true },
+      { id: "travel",  name: "旅行",                 a: 5,  c: 0,   r: 5,  l: 5,  m: 5 },
+      { id: "univ",    name: "大学に行く",           a: 5,  c: 0,   r: 5,  l: 5,  m: 0 },
+      { id: "ma",      name: "M&A",                  a: 5,  c: 5,   r: 5,  l: 5,  m: 5, act: true },
+      { id: "ipo",     name: "IPO",                  a: 5,  c: 5,   r: 5,  l: 5,  m: 5, act: true },
+      { id: "div",     name: "配当",                 a: 0,  c: 0,   r: 0,  l: 0,  m: 0 },
+      { id: "bonus",   name: "ボーナス",             a: 0,  c: 0,   r: 0,  l: 0,  m: 0 },
+      { id: "intern",  name: "インターンシップ",      a: 0,  c: 5,   r: 5,  l: 5,  m: 5, act: true },
+      { id: "fail",    name: "決算失敗",             a: -5, c: -5,  r: 0,  l: -5, m: 0 },
+      { id: "stax",    name: "株式の税金",           a: 0,  c: 0,   r: 0,  l: 0,  m: 0 },
+      { id: "poi",     name: "ポイ活",               a: 0,  c: 0,   r: 0,  l: 0,  m: 0 },
+      { id: "newy",    name: "お年玉",               a: 0,  c: 0,   r: 0,  l: 0,  m: 0 },
+      { id: "loan",    name: "銀行からの融資",       a: 0,  c: 0,   r: 0,  l: 0,  m: 5, act: true },
+      { id: "int",     name: "利息",                 a: 0,  c: 0,   r: 0,  l: 0,  m: 0 },
+      { id: "govt",    name: "行政サービス",         a: 0,  c: 5,   r: 0,  l: 0,  m: 0 },
+      { id: "house",   name: "家を買う",             a: -5, c: 0,   r: 0,  l: 0,  m: 5 },
+      { id: "car",     name: "車を買う",             a: -5, c: 0,   r: 0,  l: 5,  m: 5 },
+      { id: "marry",   name: "結婚する",             a: 0,  c: 5,   r: 10, l: 5,  m: 5 },
+      { id: "edu",     name: "教育費",               a: 0,  c: 0,   r: 10, l: 0,  m: 0 },
+      { id: "care",    name: "介護費",               a: 0,  c: 0,   r: 5,  l: 0,  m: 0 },
+      { id: "ins",     name: "保険",                 a: 0,  c: 0,   r: 0,  l: 0,  m: 5, act: true },
+      { id: "dis",     name: "災害",                 a: -5, c: 0,   r: 0,  l: -5, m: 5, sp: "disaster" },
+      { id: "med",     name: "医療費",               a: 0,  c: 0,   r: 0,  l: 0,  m: 0 },
+      { id: "hobby",   name: "趣味",                 a: 0,  c: 5,   r: 0,  l: 0,  m: 0 },
+      { id: "tax",     name: "納税",                 a: 0,  c: 0,   r: 0,  l: 0,  m: 0 },
+      { id: "fraud",   name: "詐欺",                 a: 0,  c: -10, r: 0,  l: -5, m: 5, sp: "fraud" },
+      { id: "phone",   name: "スマホ代",             a: 0,  c: 0,   r: 0,  l: 0,  m: 0 },
+      { id: "dep",     name: "預金",                 a: 0,  c: 0,   r: 0,  l: 0,  m: 0 },
+      { id: "lotL",    name: "宝くじ落選",           a: 0,  c: -5,  r: 0,  l: 0,  m: 0 },
+      { id: "lotW",    name: "宝くじ当選",           a: 10, c: 0,   r: 0,  l: 5,  m: 0 },
+      { id: "save",    name: "節約術習得",           a: 5,  c: 0,   r: 0,  l: 0,  m: 5 },
+      { id: "heir",    name: "遺産相続",             a: 5,  c: 0,   r: 10, l: 5,  m: 0 },
+      { id: "side",    name: "副業成功",             a: 0,  c: 0,   r: 0,  l: 5,  m: 5 },
+    ];
+
+    const SURVEY = [
+      { id: "q1", text: "自分の趣味や一人の時間よりも、友人や家族、同僚と過ごす時間を優先することが多い。" },
+      { id: "q2", text: "何か物事を決めるとき、自分の意見だけでなく、周囲の人がどう思うかや全体の調和を強く意識する。" },
+      { id: "q3", text: "プライベートな悩みや嬉しかった出来事、近況などを、誰かに積極的に共有（シェア）したい方だ。" },
+      { id: "q4", text: "一人でいるときよりも、誰かと繋がりを感じられているとき（連絡を取っている時など）の方が安心する。" },
+      { id: "q5", text: "人と深く関わることよりも、自分のやるべきこと（仕事、勉強、趣味など）に集中している方が充実感を得られる。", rev: true },
+    ];
+
+    const STATS = [
+      { id: "asset",         en: "Asset",         jp: "資産",     color: "#D97706" },
+      { id: "competence",    en: "Competence",    jp: "能力",     color: "#0D9488" },
+      { id: "relationships", en: "Relationships", jp: "人間関係", color: "#DB2777" },
+      { id: "luck",          en: "Luck",          jp: "運",       color: "#7C3AED" },
+      { id: "mind",          en: "Mind",          jp: "精神",     color: "#16A34A" },
+    ];
+
+    function calcScores({ finalAsset, knowledge, green, red, blue, evSt, survey }) {
+      let adj = { a: 0, c: 0, r: 0, l: 0, m: 0 };
+      for (const ev of EVENTS) {
+        const st = evSt[ev.id];
+        if (!st || !st.sel) continue;
+        if (ev.act && !st.done) continue;
+        if (ev.sp === "fraud") {
+          const amt = Number(st.prevAmt || 0);
+          adj.m += ev.m; adj.c += amt * 5;
+          if (!st.fullPrev) { adj.c += ev.c; adj.l += ev.l; }
+          continue;
+        }
+        if (ev.sp === "disaster") {
+          const mul = st.insured ? -1 : 1;
+          adj.a += ev.a * mul; adj.l += ev.l * mul; adj.m += ev.m * mul;
+          continue;
+        }
+        adj.a += ev.a; adj.c += ev.c; adj.r += ev.r; adj.l += ev.l; adj.m += ev.m;
+      }
+      const sq = (Number(survey.q1||0)+Number(survey.q2||0)+Number(survey.q3||0)+Number(survey.q4||0)+(6-Number(survey.q5||0)))/5;
+      const asset = Number(finalAsset||0) + adj.a;
+      const competence = Number(knowledge||0) * 15 + adj.c;
+      const relationships = sq * 10 + adj.r;
+      const luck = asset/4 + relationships/3 + adj.l;
+      const mind = Number(green||0)*5 + Number(red||0)*10 + Number(blue||0)*15 + adj.m;
+      return { asset, competence, relationships, luck, mind };
+    }
+
+    const fmt = (v) => (v % 1 === 0 ? v.toString() : v.toFixed(2));
+    const pad = (n) => String(n).padStart(2, "0");
+    const formatDate = (d) => `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())}`;
+
+    function App() {
+      const [ph, setPh] = useState(1);
+      const [fp, setFp] = useState({ playerName: "", finalAsset: "", knowledge: "", green: "", red: "", blue: "" });
+      const [evSt, setEvSt] = useState({});
+      const [survey, setSurvey] = useState({});
+      const [gameDate] = useState(() => new Date());
+
+      const upFp = (k, v) => setFp(p => ({ ...p, [k]: v }));
+      const togEv = (id) => setEvSt(p => {
+        if (p[id] && p[id].sel) { const n = { ...p }; delete n[id]; return n; }
+        return { ...p, [id]: { sel: true } };
+      });
+      const updEv = (id, k, v) => setEvSt(p => ({ ...p, [id]: { ...(p[id] || { sel: true }), [k]: v } }));
+
+      const canP1 = fp.finalAsset !== "" && fp.knowledge !== "";
+      const canP3 = SURVEY.every(q => (survey[q.id] || 0) > 0);
+
+      const scores = ph === 4 ? calcScores({ ...fp, evSt, survey }) : null;
+      const grade = ph === 4 && scores ? calcGrade(scores) : null;
+
+      const reset = () => {
+        setSurvey({}); setEvSt({});
+        setFp({ playerName: "", finalAsset: "", knowledge: "", green: "", red: "", blue: "" });
+        setPh(1);
+      };
+
+      return (
+        <div className="wrap">
+          <div className="hdr">
+            <div className="logo-main">ナイストミードウ<em>！！</em></div>
+            <div className="logo-sub">― 富 道 ―</div>
+            <div className="tagline">人生シミュレーション 公式スコア計算機</div>
+            <div className="steps">
+              {[["基本情報", 1], ["イベント", 2], ["アンケート", 3], ["結果", 4]].map(([l, n], i, arr) => (
+                <Fragment key={n}>
+                  <div className={`stp ${ph > n ? "don" : ph === n ? "act" : "idl"}`}>
+                    <div className="stp-n">{ph > n ? "✓" : n}</div>
+                    <span>{l}</span>
+                  </div>
+                  {i < arr.length - 1 && <div className="sdiv" />}
+                </Fragment>
+              ))}
+            </div>
+          </div>
+
+          <div key={ph} className="fin">
+            {ph === 1 && (
+              <Fragment>
+                <div className="ph-ttl">基本パラメータを入力</div>
+                <div className="ph-sub">プレイヤー情報とゲーム終了時の数値を入力してください</div>
+
+                <div className="card">
+                  <div className="ct">プレイヤー情報</div>
+                  <label className="lbl">プレイヤー名</label>
+                  <input className="inp" type="text" value={fp.playerName}
+                    onChange={(e) => upFp("playerName", e.target.value)} placeholder="例: 山田 太郎" maxLength={20} />
+                </div>
+
+                <div className="card">
+                  <div className="ct">ゲームパラメータ</div>
+                  <label className="lbl">ゲーム終了時の資産額</label>
+                  <input className="inp" type="number" value={fp.finalAsset}
+                    onChange={(e) => upFp("finalAsset", e.target.value)} placeholder="例: 100" />
+                  <label className="lbl">知識カードの枚数</label>
+                  <input className="inp" type="number" min="0" value={fp.knowledge}
+                    onChange={(e) => upFp("knowledge", e.target.value)} placeholder="例: 3" />
+                </div>
+
+                <div className="card">
+                  <div className="ct">起業カード枚数</div>
+                  <div className="r3">
+                    {[["green","#16A34A","緑カード"],["red","#DC2626","赤カード"],["blue","#2563EB","青カード"]].map(([k,col,lbl]) => (
+                      <div key={k} className="sc2">
+                        <div style={{ fontSize: 11, marginBottom: 8 }}>
+                          <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: col, marginRight: 5, verticalAlign: "middle" }} />
+                          <span style={{ color: col, fontWeight: 700 }}>{lbl}</span>
+                        </div>
+                        <input className="inp" type="number" min="0" value={fp[k]}
+                          onChange={(e) => upFp(k, e.target.value)} placeholder="0"
+                          style={{ textAlign: "center", padding: "8px 4px", fontSize: 18, fontWeight: 700 }} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <button className="btn" onClick={() => setPh(2)} disabled={!canP1}>次のステップへ →</button>
+              </Fragment>
+            )}
+
+            {ph === 2 && (
+              <Fragment>
+                <button className="bk" onClick={() => setPh(1)}>← 戻る</button>
+                <div className="ph-ttl">イベントカードを選択</div>
+                <div className="ph-sub">ゲーム中に引いたイベントカードを全て選択してください（複数選択可）</div>
+                <div className="evgrid">
+                  {EVENTS.map((ev) => {
+                    const st = evSt[ev.id] || {};
+                    return (
+                      <div key={ev.id} className={`evc${st.sel ? " sel" : ""}`} onClick={() => togEv(ev.id)}>
+                        <div className="evn">{ev.name}</div>
+                        {st.sel && (ev.act || ev.sp) && (
+                          <div className="det" onClick={(e) => e.stopPropagation()}>
+                            {ev.act && (
+                              <Fragment>
+                                <div className="dq">実際に行いましたか？</div>
+                                <div className="rbg">
+                                  {[[true,"はい"],[false,"いいえ"]].map(([v,l]) => (
+                                    <button key={l} className={`rb${st.done === v ? " on" : ""}`} onClick={() => updEv(ev.id, "done", v)}>{l}</button>
+                                  ))}
+                                </div>
+                              </Fragment>
+                            )}
+                            {ev.sp === "disaster" && (
+                              <div style={{ marginTop: ev.act ? 9 : 0 }}>
+                                <div className="dq">保険カードで回避できましたか？</div>
+                                <div className="rbg">
+                                  {[[true,"はい"],[false,"いいえ"]].map(([v,l]) => (
+                                    <button key={l} className={`rb${st.insured === v ? " on" : ""}`} onClick={() => updEv(ev.id, "insured", v)}>{l}</button>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            {ev.sp === "fraud" && (
+                              <Fragment>
+                                <div className="dq">知識カードで完全に防げましたか？</div>
+                                <div className="rbg">
+                                  {[[true,"完全防止"],[false,"防げなかった"]].map(([v,l]) => (
+                                    <button key={l} className={`rb${st.fullPrev === v ? " on" : ""}`} onClick={() => updEv(ev.id, "fullPrev", v)}>{l}</button>
+                                  ))}
+                                </div>
+                                <div className="dq" style={{ marginTop: 7 }}>知識で防いだ額（任意）</div>
+                                <input className="smli" type="number" min="0" value={st.prevAmt || ""}
+                                  onChange={(e) => updEv(ev.id, "prevAmt", e.target.value)} placeholder="0"
+                                  onClick={(e) => e.stopPropagation()} />
+                              </Fragment>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                <button className="btn" onClick={() => setPh(3)}>次のステップへ →</button>
+              </Fragment>
+            )}
+
+            {ph === 3 && (
+              <Fragment>
+                <button className="bk" onClick={() => setPh(2)}>← 戻る</button>
+                <div className="ph-ttl">アンケート</div>
+                <div className="ph-sub">日常生活の傾向について、1（全く当てはまらない）〜5（とても当てはまる）で回答してください</div>
+                {SURVEY.map((q, i) => (
+                  <div key={q.id} className="card">
+                    <div className="qn">Q{i + 1}</div>
+                    <div className="qt">{q.text}</div>
+                    <div className="lk">
+                      {[1,2,3,4,5].map((v) => (
+                        <button key={v} className={`lkb${survey[q.id] === v ? " on" : ""}`} onClick={() => setSurvey(p => ({ ...p, [q.id]: v }))}>{v}</button>
+                      ))}
+                    </div>
+                    <div className="lkll"><span>全く当てはまらない</span><span>とても当てはまる</span></div>
+                  </div>
+                ))}
+                <button className="btn" onClick={() => setPh(4)} disabled={!canP3}>スコアを計算する ✦</button>
+              </Fragment>
+            )}
+
+            {ph === 4 && scores && grade && (
+              <Fragment>
+                {/* 認定証 */}
+                <div className="cert">
+                  <div className="cert-label">RESULT CERTIFICATE</div>
+                  <div className="cert-game">ナイストミードウ！！ ― 富 道 ―</div>
+                  <div className="cert-name">{fp.playerName || "プレイヤー"}<span>様</span></div>
+                  <div className="cert-date">{formatDate(gameDate)}</div>
+                </div>
+
+                {/* 成績判定 */}
+                <div className="grade-card" style={{ "--g-color": grade.color }}>
+                  <div className="grade-label">TOTAL EVALUATION</div>
+                  <div className={`grade-badge grade-${grade.letter}`}>{grade.letter}</div>
+                  <div className="grade-title">{grade.title}</div>
+                  <div className="grade-pct">達成度 <strong>{Math.round(grade.avg)}</strong> %</div>
+                  <div className="grade-msg">{grade.msg}</div>
+                </div>
+
+                {/* レーダーチャート */}
+                <div className="chart-card">
+                  <div className="chart-title">ABILITY RADAR</div>
+                  <ResultRadarChart scores={scores} />
+                </div>
+
+                {/* 個別スコア */}
+                <div className="scards-title">DETAILED SCORES</div>
+                {STATS.map(({ id, en, jp, color }) => {
+                  const v = scores[id];
+                  const pct = normalize(v, AXIS_CONFIG[id].min, AXIS_CONFIG[id].max);
+                  return (
+                    <div key={id} className="scard"
+                      style={{
+                        background: `linear-gradient(135deg, ${color}10, ${color}03)`,
+                        border: `1px solid ${color}33`,
+                      }}>
+                      <div className="scard-row">
+                        <div>
+                          <div className="sc-en" style={{ color }}>{en}</div>
+                          <div className="sc-jp" style={{ color }}>{jp}</div>
+                        </div>
+                        <div className="sc-v" style={{ color }}>{fmt(v)}</div>
+                      </div>
+                      <ProgressBar pct={pct} color={color} />
+                    </div>
+                  );
+                })}
+
+                <button className="bk" style={{ width: "100%", textAlign: "center", marginTop: 20 }} onClick={reset}>
+                  🔄 最初からやり直す
+                </button>
+              </Fragment>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</body>
+</html>
