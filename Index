@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="ナイストミードウ（富道）！！ 公式スコア計算機">
+  <meta name="theme-color" content="#9B5DE5">
+  <title>ナイストミードウ（富道）！！</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      background: linear-gradient(175deg, #FFF2FB 0%, #F1EEFF 45%, #EAF6FF 100%);
+      background-attachment: fixed;
+      color: #463F5E;
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      font-weight: 500;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    #loader { display: flex; justify-content: center; align-items: center; height: 100vh; color: #B7A8D8; font-size: 14px; font-weight: 700; }
+    .wrap { max-width: 540px; margin: 0 auto; padding: 18px 16px 70px; }
+
+    .hdr { position: relative; text-align: center; padding: 10px 0 20px; margin-bottom: 20px; }
+    .spk { position: absolute; pointer-events: none; animation: twinkle 2.5s ease-in-out infinite; }
+    @keyframes twinkle { 0%,100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(0.7); opacity: 0.5; } }
+    .logo-main { position: relative; font-size: 30px; font-weight: 900; letter-spacing: 0.5px; line-height: 1.15;
+      background: linear-gradient(100deg, #9B5DE5 0%, #FF5CA8 50%, #FF9F1C 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .logo-sub { font-size: 13px; letter-spacing: 6px; color: #FF8FB1; margin-top: 4px; font-weight: 800; }
+    .tagline { font-size: 11px; color: #A99BC8; letter-spacing: 1px; margin-top: 8px; font-weight: 700; }
+    .steps { display: flex; align-items: center; justify-content: center; gap: 3px; margin-top: 18px; }
+    .stp { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+    .stp-n { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; background: #EAE3F7; color: #B0A4CE; transition: all 0.25s; }
+    .stp.act .stp-n { background: linear-gradient(135deg, #9B5DE5, #FF5CA8); color: #fff; transform: scale(1.12); box-shadow: 0 4px 10px rgba(155,93,229,0.35); }
+    .stp.don .stp-n { background: #38D996; color: #fff; }
+    .stp-l { font-size: 9px; font-weight: 700; color: #B0A4CE; }
+    .stp.act .stp-l { color: #9B5DE5; }
+    .stp.don .stp-l { color: #2BB57C; }
+
+    .fin { animation: fi 0.4s cubic-bezier(0.34,1.4,0.64,1) both; }
+    @keyframes fi { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+    .ph-ttl { font-size: 22px; font-weight: 900; margin-bottom: 5px; color: #463F5E; }
+    .ph-sub { font-size: 13px; color: #9A8FB8; margin-bottom: 20px; line-height: 1.6; font-weight: 500; }
+    .card { background: #fff; border-radius: 22px; padding: 20px; margin-bottom: 14px; box-shadow: 0 6px 20px rgba(155,93,229,0.08); }
+    .ct { font-size: 12px; font-weight: 800; color: #9B5DE5; margin-bottom: 14px; }
+    .lbl { font-size: 13px; color: #6B6385; display: block; margin-bottom: 7px; margin-top: 16px; font-weight: 700; }
+    .lbl:first-of-type { margin-top: 0; }
+    .inp { width: 100%; min-height: 52px; background: #F8F5FF; border: 2.5px solid #ECE5FA; border-radius: 14px; padding: 13px 16px; color: #463F5E; font-size: 16px; font-weight: 700; font-family: inherit; outline: none; transition: all 0.15s; -webkit-appearance: none; -moz-appearance: textfield; }
+    .inp::-webkit-inner-spin-button, .inp::-webkit-outer-spin-button { -webkit-appearance: none; }
+    .inp:focus { border-color: #9B5DE5; background: #fff; box-shadow: 0 0 0 4px rgba(155,93,229,0.12); }
+    .inp::placeholder { color: #C9BEE3; font-weight: 500; }
+    .r3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 9px; }
+    .sc2 { background: #F8F5FF; border-radius: 16px; padding: 14px 6px; text-align: center; }
+
+    .evgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+    .evc { background: #fff; border: 2.5px solid #EFEAF8; border-radius: 18px; padding: 16px 14px; cursor: pointer; transition: all 0.15s; user-select: none; position: relative; }
+    .evc:active { transform: scale(0.97); }
+    .evc.sel { border-color: #9B5DE5; background: linear-gradient(135deg, #F5EEFF, #FFEEF7); box-shadow: 0 5px 16px rgba(155,93,229,0.18); }
+    .evc.sel::after { content: '✓'; position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; border-radius: 50%; background: linear-gradient(135deg,#9B5DE5,#FF5CA8); color: #fff; font-size: 13px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+    .evn { font-size: 14px; font-weight: 800; line-height: 1.35; color: #463F5E; }
+    .det { margin-top: 12px; padding-top: 12px; border-top: 2px dashed #EFEAF8; }
+    .dq { font-size: 12px; color: #6B6385; margin-bottom: 7px; line-height: 1.4; font-weight: 700; }
+    .rbg { display: flex; gap: 6px; flex-wrap: wrap; }
+    .rb { padding: 8px 12px; border-radius: 12px; border: 2px solid #ECE5FA; background: #fff; color: #8A7FAE; cursor: pointer; font-size: 12px; font-weight: 800; font-family: inherit; transition: all 0.15s; }
+    .rb.on { background: linear-gradient(135deg,#9B5DE5,#FF5CA8); border-color: transparent; color: #fff; }
+    .smli { width: 100%; min-height: 44px; background: #F8F5FF; border: 2px solid #ECE5FA; border-radius: 12px; padding: 9px 12px; color: #463F5E; font-size: 14px; font-weight: 700; outline: none; margin-top: 7px; font-family: inherit; -webkit-appearance: none; -moz-appearance: textfield; }
+    .smli::-webkit-inner-spin-button, .smli::-webkit-outer-spin-button { -webkit-appearance: none; }
+    .smli:focus { border-color: #9B5DE5; }
+
+    .qt { font-size: 15px; line-height: 1.7; margin-bottom: 14px; color: #463F5E; font-weight: 700; }
+    .lk { display: flex; gap: 7px; }
+    .lkb { flex: 1; min-height: 54px; border-radius: 16px; border: 2.5px solid #ECE5FA; background: #fff; color: #B0A4CE; cursor: pointer; font-size: 20px; font-weight: 900; font-family: inherit; transition: all 0.15s; }
+    .lkb:active { transform: scale(0.94); }
+    .lkb.on { background: linear-gradient(135deg,#9B5DE5,#FF5CA8); border-color: transparent; color: #fff; transform: scale(1.06); box-shadow: 0 5px 14px rgba(155,93,229,0.3); }
+    .lkll { display: flex; justify-content: space-between; font-size: 10px; color: #B0A4CE; margin-top: 8px; font-weight: 700; }
+    .qn { display: inline-block; font-size: 11px; color: #fff; margin-bottom: 8px; font-weight: 800; background: linear-gradient(135deg,#9B5DE5,#FF5CA8); padding: 3px 12px; border-radius: 100px; }
+
+    .btn { width: 100%; padding: 17px; border: none; border-radius: 18px; background: linear-gradient(135deg, #9B5DE5, #FF5CA8); color: #fff; font-size: 17px; font-weight: 900; cursor: pointer; font-family: inherit; letter-spacing: 1px; box-shadow: 0 5px 0 #7C3FC9, 0 11px 18px rgba(155,93,229,0.28); transition: transform 0.1s, box-shadow 0.1s; margin-top: 6px; }
+    .btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 #7C3FC9, 0 4px 10px rgba(155,93,229,0.22); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: 0 5px 0 rgba(0,0,0,0.08); }
+    .bk { background: #fff; border: 2.5px solid #ECE5FA; border-radius: 14px; color: #8A7FAE; padding: 10px 16px; cursor: pointer; font-size: 13px; font-weight: 800; font-family: inherit; transition: all 0.15s; margin-bottom: 16px; }
+    .bk:active { transform: scale(0.97); }
+
+    .capture { background: linear-gradient(160deg, #fff 0%, #F7F0FF 50%, #FFF0F8 100%); border-radius: 24px; padding: 14px 12px 18px; }
+    .cert { position: relative; text-align: center; background: linear-gradient(135deg, #FFF7DC 0%, #FFE9C2 100%); border: 3px solid #FFCE3F; border-radius: 22px; padding: 24px 18px 18px; margin-bottom: 14px; box-shadow: 0 6px 20px rgba(255,180,40,0.2); animation: certIn 0.6s ease-out 0.1s both; }
+    @keyframes certIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+    .cert-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 3px; color: #E08A00; margin-bottom: 6px; font-weight: 800; }
+    .cert-game { font-size: 12px; color: #C77800; margin-bottom: 14px; font-weight: 800; }
+    .cert-name { font-size: 24px; font-weight: 900; color: #5B4A1E; margin-bottom: 4px; }
+    .cert-name span { font-size: 14px; color: #A98A4B; margin-left: 5px; font-weight: 700; }
+    .cert-date { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A98A4B; letter-spacing: 2px; font-weight: 700; }
+
+    .grade-card { position: relative; text-align: center; background: #fff; border-radius: 26px; padding: 24px 18px; margin-bottom: 14px; border: 3px solid var(--g-color, #ddd); box-shadow: 0 10px 30px var(--g-shadow, rgba(0,0,0,0.06)); overflow: hidden; }
+    .grade-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 90px; background: linear-gradient(180deg, var(--g-color) 0%, transparent 100%); opacity: 0.14; pointer-events: none; }
+    .grade-label { position: relative; display: inline-block; font-size: 10px; letter-spacing: 2px; color: #fff; margin-bottom: 10px; font-weight: 800; background: var(--g-color); padding: 4px 14px; border-radius: 100px; }
+    .medallion { display: block; margin: 0 auto 4px; animation: badgeIn 0.9s cubic-bezier(0.34,1.56,0.64,1) 0.25s both; }
+    @keyframes badgeIn { 0% { transform: scale(0) rotate(-150deg); opacity: 0; } 60% { transform: scale(1.12) rotate(8deg); } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+    .grade-title { font-size: 30px; font-weight: 900; color: #463F5E; margin-bottom: 14px; position: relative; letter-spacing: 2px; }
+    .pct-pill { display: inline-flex; align-items: baseline; gap: 4px; background: var(--g-color); color: #fff; padding: 9px 24px; border-radius: 100px; margin-bottom: 16px; position: relative; box-shadow: 0 6px 16px var(--g-shadow); }
+    .pct-label { font-size: 12px; opacity: 0.95; font-weight: 700; }
+    .pct-num { font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 800; line-height: 1; }
+    .pct-unit { font-size: 13px; font-weight: 800; }
+    .info-block { position: relative; text-align: left; padding: 14px 16px; border-radius: 16px; margin-top: 12px; }
+    .type-block { background: linear-gradient(135deg,#FFF3F9,#F3ECFF); }
+    .advice-block { background: #F8F5FF; }
+    .info-label { font-size: 10px; letter-spacing: 1px; font-weight: 800; margin-bottom: 6px; }
+    .type-block .info-label { color: #FF5CA8; }
+    .advice-block .info-label { color: #9B5DE5; }
+    .type-name { font-size: 16px; font-weight: 900; color: #463F5E; margin-bottom: 4px; }
+    .info-text { font-size: 13px; color: #5B5375; line-height: 1.75; font-weight: 600; }
+
+    .chart-card { background: #fff; border-radius: 22px; padding: 18px 12px 10px; margin-bottom: 14px; box-shadow: 0 6px 20px rgba(155,93,229,0.08); }
+    .chart-title { font-size: 11px; letter-spacing: 2px; color: #B0A4CE; text-align: center; margin-bottom: 4px; font-weight: 800; }
+
+    .scards-title { font-size: 11px; letter-spacing: 2px; color: #B0A4CE; text-align: center; margin: 18px 0 12px; font-weight: 800; }
+    .scard { border-radius: 18px; padding: 16px 18px; margin-bottom: 10px; background: #fff; }
+    .scard-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 11px; }
+    .sc-en { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; opacity: 0.7; font-weight: 700; }
+    .sc-jp { font-size: 18px; font-weight: 900; margin-top: 1px; }
+    .sc-v { font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 800; line-height: 1; }
+    .progress { width: 100%; height: 9px; background: rgba(0,0,0,0.05); border-radius: 100px; overflow: hidden; }
+    .progress-bar { height: 100%; border-radius: 100px; transition: width 1.2s cubic-bezier(0.34,1.3,0.64,1); }
+    .capture-footer { text-align: center; font-size: 11px; color: #C9BEE3; margin-top: 16px; font-weight: 700; }
+
+    .share-sec { background: #fff; border-radius: 22px; padding: 18px; margin: 14px 0; box-shadow: 0 6px 20px rgba(155,93,229,0.08); }
+    .share-ttl { font-size: 15px; font-weight: 900; text-align: center; margin-bottom: 4px; color: #463F5E; }
+    .share-sub { font-size: 11px; color: #B0A4CE; text-align: center; margin-bottom: 14px; font-weight: 600; }
+    .sbtn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 52px; border-radius: 16px; border: none; font-size: 15px; font-weight: 800; cursor: pointer; font-family: inherit; transition: transform 0.12s; margin-bottom: 9px; }
+    .sbtn:active:not(:disabled) { transform: scale(0.97); }
+    .sbtn:disabled { opacity: 0.55; cursor: wait; }
+    .sbtn-dl { background: linear-gradient(135deg, #9B5DE5, #FF5CA8); color: #fff; box-shadow: 0 5px 14px rgba(155,93,229,0.28); }
+    .sbtn-share { background: #4EA8FF; color: #fff; box-shadow: 0 5px 14px rgba(78,168,255,0.28); }
+    .sbtn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .sbtn-x { background: #1F1F2E; color: #fff; margin-bottom: 0; }
+    .sbtn-line { background: #06C755; color: #fff; margin-bottom: 0; }
+
+    .admin-link { text-align: center; margin-top: 26px; }
+    .admin-link a { font-size: 12px; color: #C9BEE3; text-decoration: none; font-weight: 700; }
+    .admin-link a:active { color: #9B5DE5; }
+  </style>
+</head>
+<body>
+  <div id="root"><div id="loader">読み込み中…</div></div>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <script type="text/babel" data-presets="env,react">
+    const { useState, useEffect, useRef, Fragment } = React;
+
+    // ============================================================
+    //  Supabase設定（APIキーを取得したら、ここに貼り付けてください）
+    // ============================================================
+    const SUPABASE_URL  = "https://bgpevzoncxampykakurt.supabase.co";      // 例: https://xxxxx.supabase.co
+    const SUPABASE_KEY  = "sb_publishable_bSCxwc0Vwazjy0RYiMlfRA_kWwpA6Ne";  // 例: eyJhbGciOiJIUz...
+    // ============================================================
+
+    const _sbReady = SUPABASE_URL !== "YOUR_SUPABASE_URL" && SUPABASE_KEY !== "YOUR_SUPABASE_ANON_KEY";
+    const db = _sbReady ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+    const DB_KEY = "nice_tomidou_results_v1"; // localStorage fallback用
+
+    const AXIS_CONFIG = {
+      asset:         { label: "資産",     min: 20, max: 100 },
+      competence:    { label: "能力",     min: 0,  max: 100 },
+      relationships: { label: "人間関係", min: 0,  max: 60 },
+      luck:          { label: "運",       min: 10, max: 40 },
+      mind:          { label: "起業精神", min: 0,  max: 80 },
+    };
+    const RADAR_KEYS = ["asset", "competence", "relationships", "luck", "mind"];
+    const JP_LABEL = { asset: "資産", competence: "能力", relationships: "人間関係", luck: "運", mind: "起業精神" };
+    const normalize = (v, min, max) => Math.max(0, Math.min(100, ((v - min) / (max - min)) * 100));
+
+    // グレード（戦略には触れず、等級のみ）
+    const GRADES = {
+      S: { letter: "S", title: "富道マスター", color: "#FFB800", light: "#FFD96B", shadow: "rgba(255,184,0,0.35)" },
+      A: { letter: "A", title: "達人",       color: "#9B5DE5", light: "#C99BFF", shadow: "rgba(155,93,229,0.35)" },
+      B: { letter: "B", title: "努力家",     color: "#4EA8FF", light: "#92CBFF", shadow: "rgba(78,168,255,0.35)" },
+      C: { letter: "C", title: "成長株",     color: "#38D996", light: "#82E9BE", shadow: "rgba(56,217,150,0.35)" },
+      D: { letter: "D", title: "修行中",     color: "#FF8FB1", light: "#FFB8D0", shadow: "rgba(255,143,177,0.35)" },
+    };
+    function calcGrade(scores) {
+      const pcts = RADAR_KEYS.map(k => normalize(scores[k], AXIS_CONFIG[k].min, AXIS_CONFIG[k].max));
+      const avg = pcts.reduce((a, b) => a + b, 0) / pcts.length;
+      let g;
+      if (avg >= 80) g = GRADES.S;
+      else if (avg >= 65) g = GRADES.A;
+      else if (avg >= 50) g = GRADES.B;
+      else if (avg >= 35) g = GRADES.C;
+      else g = GRADES.D;
+      return { ...g, avg };
+    }
+
+    // 対人関係アンケートの結果（タイプ判定）
+    function surveyScoreOf(survey) {
+      return (Number(survey.q1||0)+Number(survey.q2||0)+Number(survey.q3||0)+Number(survey.q4||0)+(6-Number(survey.q5||0)))/5;
+    }
+    const REL_TYPES = [
+      { min: 4.1, label: "人間関係 重視タイプ", desc: "人とのつながりを何より大切にする人。" },
+      { min: 3.1, label: "バランス・協調タイプ", desc: "人間関係を大事にしつつ、自分の時間も保てる人。" },
+      { min: 2.1, label: "マイペース・自立タイプ", desc: "人も大事だが、自分の世界も同じくらい大切にする人。" },
+      { min: 0,   label: "自己完結タイプ", desc: "自分の目標や興味に集中して力を発揮する人。" },
+    ];
+    const relTypeOf = (ss) => REL_TYPES.find(t => ss >= t.min);
+
+    // アドバイス（五角形チャートの形から。50字以内）
+    function chartAdvice(scores) {
+      const arr = RADAR_KEYS.map(k => ({ k, pct: normalize(scores[k], AXIS_CONFIG[k].min, AXIS_CONFIG[k].max) }));
+      const sorted = [...arr].sort((a, b) => b.pct - a.pct);
+      const best = sorted[0], worst = sorted[sorted.length - 1];
+      if (best.pct - worst.pct < 8) return "5つの力がバランス良く整っています。理想的な五角形です。";
+      if (worst.k === "relationships") return "人とのつながりを意識すると、五角形がさらに整います。";
+      return `「${JP_LABEL[worst.k]}」が伸びると、五角形のバランスが良くなります。`;
+    }
+
+    function GradeMedallion({ grade }) {
+      const { letter, color, light } = grade;
+      const cx = 110, cy = 108;
+      const rays = [], beads = [];
+      for (let i = 0; i < 36; i++) {
+        const a = (i * 10) * Math.PI / 180;
+        const long = i % 3 === 0;
+        const r1 = 80, r2 = long ? 102 : 92;
+        rays.push(<line key={"r"+i} x1={cx + r1*Math.cos(a)} y1={cy + r1*Math.sin(a)} x2={cx + r2*Math.cos(a)} y2={cy + r2*Math.sin(a)} stroke={color} strokeWidth={long ? 2.8 : 1.2} opacity="0.28" strokeLinecap="round" />);
+      }
+      for (let i = 0; i < 40; i++) {
+        const a = (i * 9) * Math.PI / 180; const r = 70;
+        beads.push(<circle key={"b"+i} cx={cx + r*Math.cos(a)} cy={cy + r*Math.sin(a)} r="1.7" fill={color} opacity="0.45" />);
+      }
+      const laurel = (side) => {
+        const items = []; const dir = side;
+        for (let i = 0; i < 5; i++) {
+          const lx = cx + dir * (28 + i * 12); const ly = cy + 60 - i * 14;
+          items.push(<ellipse key={side+"l"+i} cx={lx} cy={ly} rx="8" ry="3.4" fill={color} opacity={0.5 - i*0.04} transform={`rotate(${dir < 0 ? 35 + i*8 : -35 - i*8} ${lx} ${ly})`} />);
+        }
+        return items;
+      };
+      return (
+        <svg viewBox="0 0 220 220" width="170" height="170" className="medallion">
+          <defs>
+            <linearGradient id={"mg-"+letter} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={light} /><stop offset="100%" stopColor={color} /></linearGradient>
+            <radialGradient id={"ms-"+letter} cx="0.5" cy="0.3" r="0.72"><stop offset="0%" stopColor="#fff" stopOpacity="0.6" /><stop offset="55%" stopColor="#fff" stopOpacity="0.1" /><stop offset="100%" stopColor="#fff" stopOpacity="0" /></radialGradient>
+          </defs>
+          {rays}{laurel(-1)}{laurel(1)}
+          <circle cx={cx} cy={cy} r="76" fill="none" stroke={color} strokeWidth="1.8" opacity="0.35" />
+          {beads}
+          <circle cx={cx} cy={cy} r="62" fill={`url(#mg-${letter})`} />
+          <circle cx={cx} cy={cy} r="62" fill={`url(#ms-${letter})`} />
+          <circle cx={cx} cy={cy} r="53" fill="none" stroke="#fff" strokeWidth="1.8" opacity="0.5" />
+          <text x={cx} y={cy+3} textAnchor="middle" dominantBaseline="central" fontFamily="'JetBrains Mono', monospace" fontSize="60" fontWeight="800" fill="#fff">{letter}</text>
+        </svg>
+      );
+    }
+
+    function ResultRadarChart({ scores }) {
+      const canvasRef = useRef(null), chartRef = useRef(null);
+      useEffect(() => {
+        if (!canvasRef.current) return;
+        const normData = RADAR_KEYS.map(k => normalize(scores[k], AXIS_CONFIG[k].min, AXIS_CONFIG[k].max));
+        const actual = RADAR_KEYS.map(k => scores[k]);
+        if (chartRef.current) chartRef.current.destroy();
+        chartRef.current = new Chart(canvasRef.current, {
+          type: "radar",
+          data: { labels: RADAR_KEYS.map(k => AXIS_CONFIG[k].label), datasets: [{
+            label: "あなたのスコア", data: normData,
+            backgroundColor: "rgba(155, 93, 229, 0.22)", borderColor: "rgba(155, 93, 229, 1)", borderWidth: 2.5,
+            pointBackgroundColor: "rgba(255, 92, 168, 1)", pointBorderColor: "#fff", pointBorderWidth: 2,
+            pointHoverBackgroundColor: "#fff", pointHoverBorderColor: "rgba(155, 93, 229, 1)",
+            pointRadius: 5, pointHoverRadius: 7,
+          }]},
+          options: {
+            responsive: true, maintainAspectRatio: false, animation: { duration: 900 },
+            scales: { r: { min: 0, max: 100, beginAtZero: true, ticks: { display: false, stepSize: 20 },
+              angleLines: { color: "rgba(155,93,229,0.12)" }, grid: { color: "rgba(155,93,229,0.12)" },
+              pointLabels: { font: { size: 13, weight: "700", family: "'M PLUS Rounded 1c'" }, color: "#6B6385" } }},
+            plugins: { legend: { display: false }, tooltip: {
+              backgroundColor: "rgba(255,255,255,0.98)", borderColor: "rgba(155,93,229,0.4)", borderWidth: 1,
+              titleColor: "#463F5E", bodyColor: "#6B6385", padding: 10, bodyFont: { family: "'M PLUS Rounded 1c'", weight: "700" },
+              callbacks: { label: (ctx) => { const a = actual[ctx.dataIndex]; const d = typeof a === "number" ? (a % 1 === 0 ? a.toString() : a.toFixed(2)) : a; return `スコア: ${d}`; } },
+            }},
+          },
+        });
+        return () => { if (chartRef.current) { chartRef.current.destroy(); chartRef.current = null; } };
+      }, [scores]);
+      return <div style={{ position: "relative", width: "100%", height: 340 }}><canvas ref={canvasRef} /></div>;
+    }
+
+    function ProgressBar({ pct, color }) {
+      const [w, setW] = useState(0);
+      useEffect(() => { const t = setTimeout(() => setW(pct), 200); return () => clearTimeout(t); }, [pct]);
+      return <div className="progress"><div className="progress-bar" style={{ width: `${w}%`, background: `linear-gradient(90deg, ${color}, ${color}CC)` }} /></div>;
+    }
+
+    const IconDownload = () => (<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v11"/><path d="M8 11l4 4 4-4"/><path d="M5 19h14"/></svg>);
+    const IconShare = () => (<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 14V3"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>);
+    const IconX = () => (<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>);
+    const Sparkle = ({ color, size, style }) => (<svg className="spk" width={size} height={size} viewBox="0 0 24 24" fill={color} style={style}><path d="M12 1l2.2 8.8L23 12l-8.8 2.2L12 23l-2.2-8.8L1 12l8.8-2.2z"/></svg>);
+
+    const EVENTS = [
+      { id: "nisa",    name: "積立NISAをやる",       a: 5,  c: 5,   r: 0,  l: 0,  m: 0, act: true },
+      { id: "ideco",   name: "iDeCoをやる",          a: 5,  c: 5,   r: 0,  l: 0,  m: 0, act: true },
+      { id: "travel",  name: "旅行",                 a: 5,  c: 0,   r: 5,  l: 5,  m: 5 },
+      { id: "univ",    name: "大学に行く",           a: 5,  c: 0,   r: 5,  l: 5,  m: 0 },
+      { id: "ma",      name: "M&A",                  a: 5,  c: 5,   r: 5,  l: 5,  m: 5, act: true },
+      { id: "ipo",     name: "IPO",                  a: 5,  c: 5,   r: 5,  l: 5,  m: 5, act: true },
+      { id: "div",     name: "配当",                 a: 0,  c: 0,   r: 0,  l: 0,  m: 0 },
+      { id: "bonus",   name: "ボーナス",             a: 0,  c: 0,   r: 0,  l: 0,  m: 0 },
+      { id: "intern",  name: "インターンシップ",      a: 0,  c: 5,   r: 5,  l: 5,  m: 5, act: true },
+      { id: "fail",    name: "決算失敗",             a: -5, c: -5,  r: 0,  l: -5, m: 0 },
+      { id: "stax",    name: "株式の税金",           a: 0,  c: 0,   r: 0,  l: 0,  m: 0 },
+      { id: "poi",     name: "ポイ活",               a: 0,  c: 0,   r: 0,  l: 0,  m: 0 },
+      { id: "newy",    name: "お年玉",               a: 0,  c: 0,   r: 0,  l: 0,  m: 0 },
+      { id: "loan",    name: "銀行からの融資",       a: 0,  c: 0,   r: 0,  l: 0,  m: 5, act: true },
+      { id: "int",     name: "利息",                 a: 0,  c: 0,   r: 0,  l: 0,  m: 0 },
+      { id: "govt",    name: "行政サービス",         a: 0,  c: 5,   r: 0,  l: 0,  m: 0 },
+      { id: "house",   name: "家を買う",             a: -5, c: 0,   r: 0,  l: 0,  m: 5 },
+      { id: "car",     name: "車を買う",             a: -5, c: 0,   r: 0,  l: 5,  m: 5 },
+      { id: "marry",   name: "結婚する",             a: 0,  c: 5,   r: 10, l: 5,  m: 5 },
+      { id: "edu",     name: "教育費",               a: 0,  c: 0,   r: 10, l: 0,  m: 0 },
+      { id: "care",    name: "介護費",               a: 0,  c: 0,   r: 5,  l: 0,  m: 0 },
+      { id: "ins",     name: "保険",                 a: 0,  c: 0,   r: 0,  l: 0,  m: 5, act: true },
+      { id: "dis",     name: "災害",                 a: -5, c: 0,   r: 0,  l: -5, m: 5, sp: "disaster" },
+      { id: "med",     name: "医療費",               a: 0,  c: 0,   r: 0,  l: 0,  m: 0 },
+      { id: "hobby",   name: "趣味",                 a: 0,  c: 5,   r: 0,  l: 0,  m: 0 },
+      { id: "tax",     name: "納税",                 a: 0,  c: 0,   r: 0,  l: 0,  m: 0 },
+      { id: "fraud",   name: "詐欺",                 a: 0,  c: -10, r: 0,  l: -5, m: 5, sp: "fraud" },
+      { id: "phone",   name: "スマホ代",             a: 0,  c: 0,   r: 0,  l: 0,  m: 0 },
+      { id: "dep",     name: "預金",                 a: 0,  c: 0,   r: 0,  l: 0,  m: 0 },
+      { id: "lotL",    name: "宝くじ落選",           a: 0,  c: -5,  r: 0,  l: 0,  m: 0 },
+      { id: "lotW",    name: "宝くじ当選",           a: 10, c: 0,   r: 0,  l: 5,  m: 0 },
+      { id: "save",    name: "節約術習得",           a: 5,  c: 0,   r: 0,  l: 0,  m: 5 },
+      { id: "heir",    name: "遺産相続",             a: 5,  c: 0,   r: 10, l: 5,  m: 0 },
+      { id: "side",    name: "副業成功",             a: 0,  c: 0,   r: 0,  l: 5,  m: 5 },
+    ];
+
+    const SURVEY = [
+      { id: "q1", text: "自分の趣味や一人の時間よりも、友人や家族、同僚と過ごす時間を優先することが多い。" },
+      { id: "q2", text: "何か物事を決めるとき、自分の意見だけでなく、周囲の人がどう思うかや全体の調和を強く意識する。" },
+      { id: "q3", text: "うれしかった出来事や近況などを、誰かに積極的に共有（シェア）したい方だ。" },
+      { id: "q4", text: "一人でいるときよりも、誰かとつながりを感じているとき（連絡を取っている時など）の方が安心する。" },
+      { id: "q5", text: "人と深く関わることよりも、自分のやるべきこと（勉強・趣味など）に集中している方が充実する。", rev: true },
+    ];
+
+    const STATS = [
+      { id: "asset",         en: "Asset",         jp: "資産",     color: "#FF9F1C" },
+      { id: "competence",    en: "Competence",    jp: "能力",     color: "#2EC4B6" },
+      { id: "relationships", en: "Relationships", jp: "人間関係", color: "#FF5CA8" },
+      { id: "luck",          en: "Luck",          jp: "運",       color: "#9B5DE5" },
+      { id: "mind",          en: "Mind",          jp: "精神",     color: "#38D996" },
+    ];
+
+    function calcScores({ finalAsset, knowledge, green, red, blue, evSt, survey }) {
+      let adj = { a: 0, c: 0, r: 0, l: 0, m: 0 };
+      for (const ev of EVENTS) {
+        const st = evSt[ev.id];
+        if (!st || !st.sel) continue;
+        if (ev.act && !st.done) continue;
+        if (ev.sp === "fraud") {
+          const amt = Number(st.prevAmt || 0);
+          adj.m += ev.m; adj.c += amt * 5;
+          if (!st.fullPrev) { adj.c += ev.c; adj.l += ev.l; }
+          continue;
+        }
+        if (ev.sp === "disaster") {
+          const mul = st.insured ? -1 : 1;
+          adj.a += ev.a * mul; adj.l += ev.l * mul; adj.m += ev.m * mul;
+          continue;
+        }
+        adj.a += ev.a; adj.c += ev.c; adj.r += ev.r; adj.l += ev.l; adj.m += ev.m;
+      }
+      const sq = surveyScoreOf(survey);
+      const asset = Number(finalAsset||0) + adj.a;
+      const competence = Number(knowledge||0) * 15 + adj.c;
+      const relationships = sq * 10 + adj.r;
+      const luck = asset/4 + relationships/3 + adj.l;
+      const mind = Number(green||0)*5 + Number(red||0)*10 + Number(blue||0)*15 + adj.m;
+      return { asset, competence, relationships, luck, mind };
+    }
+
+    const fmt = (v) => (v % 1 === 0 ? v.toString() : v.toFixed(2));
+    const pad = (n) => String(n).padStart(2, "0");
+    const formatDate = (d) => `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())}`;
+
+    function ResultScreen({ fp, scores, grade, survey, gameDate, onReset }) {
+      const captureRef = useRef(null);
+      const [busy, setBusy] = useState(false);
+      const rel = relTypeOf(surveyScoreOf(survey));
+      const advice = chartAdvice(scores);
+
+      useEffect(() => {
+        try {
+          const existing = JSON.parse(localStorage.getItem(DB_KEY) || "[]");
+          existing.push({
+            id: Date.now(), name: fp.playerName || "プレイヤー", date: gameDate.toISOString(),
+            grade: grade.letter, gradeTitle: grade.title, avg: Math.round(grade.avg * 10) / 10,
+            relType: rel.label,
+            scores: { asset: scores.asset, competence: scores.competence, relationships: scores.relationships, luck: scores.luck, mind: scores.mind },
+          });
+          localStorage.setItem(DB_KEY, JSON.stringify(existing));
+        } catch (e) {}
+
+        if (window.confetti) {
+          const counts = { S: 220, A: 150, B: 110, C: 80, D: 60 };
+          const palettes = {
+            S: ["#FFD23F","#FFB800","#FF9F1C","#FFE38A"],
+            A: ["#9B5DE5","#FF5CA8","#C99BFF","#FF8FB1"],
+            B: ["#4EA8FF","#92CBFF","#38D996","#82E9BE"],
+            C: ["#38D996","#82E9BE","#4EA8FF"],
+            D: ["#FF8FB1","#FFB8D0","#9B5DE5"],
+          };
+          const colors = palettes[grade.letter];
+          const t1 = setTimeout(() => window.confetti({ particleCount: counts[grade.letter], spread: 80, origin: { y: 0.5 }, colors, scalar: 1.1 }), 350);
+          let t2, t3;
+          if (grade.letter === "S" || grade.letter === "A") {
+            t2 = setTimeout(() => window.confetti({ particleCount: 80, angle: 60, spread: 55, origin: { x: 0, y: 0.6 }, colors }), 650);
+            t3 = setTimeout(() => window.confetti({ particleCount: 80, angle: 120, spread: 55, origin: { x: 1, y: 0.6 }, colors }), 850);
+          }
+          return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+        }
+      }, []);
+
+      async function makeCanvas() {
+        if (!captureRef.current || !window.html2canvas) return null;
+        return await window.html2canvas(captureRef.current, { scale: 2, backgroundColor: null, logging: false, useCORS: true });
+      }
+      const fileName = `ナイストミードウ_${fp.playerName || "プレイヤー"}.png`;
+      const shareText = `ナイストミードウ！！の富道診断で、私は「${grade.title}」でした！\n総合達成度 ${Math.round(grade.avg)}%\n#ナイストミードウ #富道`;
+
+      async function handleDownload() {
+        setBusy(true);
+        try { const c = await makeCanvas(); if (c) { const a = document.createElement("a"); a.download = fileName; a.href = c.toDataURL("image/png"); a.click(); } }
+        catch (e) { alert("画像の保存に失敗しました。"); }
+        setBusy(false);
+      }
+      async function handleShare() {
+        setBusy(true);
+        try {
+          const c = await makeCanvas(); if (!c) { setBusy(false); return; }
+          c.toBlob(async (blob) => {
+            const file = new File([blob], "result.png", { type: "image/png" });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+              try { await navigator.share({ files: [file], title: "ナイストミードウ！！", text: shareText }); } catch (e) {}
+            } else { const a = document.createElement("a"); a.download = fileName; a.href = c.toDataURL("image/png"); a.click(); }
+            setBusy(false);
+          }, "image/png");
+        } catch (e) { setBusy(false); }
+      }
+      function shareX() { window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`, "_blank"); }
+      function shareLine() { window.open(`https://line.me/R/msg/text/?${encodeURIComponent(shareText)}`, "_blank"); }
+
+      return (
+        <Fragment>
+          <div ref={captureRef} className="capture">
+            <div className="cert">
+              <div className="cert-label">RESULT CERTIFICATE</div>
+              <div className="cert-game">ナイストミードウ！！ ― 富 道 ―</div>
+              <div className="cert-name">{fp.playerName || "プレイヤー"}<span>さん</span></div>
+              <div className="cert-date">{formatDate(gameDate)}</div>
+            </div>
+
+            <div className="grade-card" style={{ "--g-color": grade.color, "--g-shadow": grade.shadow }}>
+              <div className="grade-label">総合結果</div>
+              <GradeMedallion grade={grade} />
+              <div className="grade-title">{grade.title}</div>
+              <div className="pct-pill">
+                <span className="pct-label">達成度</span>
+                <span className="pct-num">{Math.round(grade.avg)}</span>
+                <span className="pct-unit">%</span>
+              </div>
+              <div className="info-block type-block">
+                <div className="info-label">対人関係タイプ</div>
+                <div className="type-name">{rel.label}</div>
+                <div className="info-text">{rel.desc}</div>
+              </div>
+              <div className="info-block advice-block">
+                <div className="info-label">アドバイス</div>
+                <div className="info-text">{advice}</div>
+              </div>
+            </div>
+
+            <div className="chart-card">
+              <div className="chart-title">能力レーダー</div>
+              <ResultRadarChart scores={scores} />
+            </div>
+
+            <div className="scards-title">スコア一覧</div>
+            {STATS.map(({ id, en, jp, color }) => {
+              const v = scores[id];
+              const pct = normalize(v, AXIS_CONFIG[id].min, AXIS_CONFIG[id].max);
+              return (
+                <div key={id} className="scard" style={{ background: `linear-gradient(135deg, ${color}14, ${color}06)`, border: `2.5px solid ${color}33` }}>
+                  <div className="scard-row">
+                    <div>
+                      <div className="sc-en" style={{ color }}>{en}</div>
+                      <div className="sc-jp" style={{ color }}>{jp}</div>
+                    </div>
+                    <div className="sc-v" style={{ color }}>{fmt(v)}</div>
+                  </div>
+                  <ProgressBar pct={pct} color={color} />
+                </div>
+              );
+            })}
+
+            <div className="capture-footer">ナイストミードウ（富道）！！</div>
+          </div>
+
+          <div className="share-sec">
+            <div className="share-ttl">結果を保存・シェア</div>
+            <div className="share-sub">{busy ? "画像を生成中…" : "結果を画像で保存したり、SNSでシェアできます"}</div>
+            <button className="sbtn sbtn-dl" onClick={handleDownload} disabled={busy}><IconDownload />結果を画像で保存</button>
+            <button className="sbtn sbtn-share" onClick={handleShare} disabled={busy}><IconShare />シェアする（画像付き）</button>
+            <div className="sbtn-row">
+              <button className="sbtn sbtn-x" onClick={shareX}><IconX />でポスト</button>
+              <button className="sbtn sbtn-line" onClick={shareLine}>LINEで送る</button>
+            </div>
+          </div>
+
+          <button className="bk" style={{ width: "100%", textAlign: "center", padding: "14px" }} onClick={onReset}>もう一度プレイする</button>
+        </Fragment>
+      );
+    }
+
+    function App() {
+      const [ph, setPh] = useState(1);
+      const [fp, setFp] = useState({ playerName: "", finalAsset: "", knowledge: "", green: "", red: "", blue: "" });
+      const [evSt, setEvSt] = useState({});
+      const [survey, setSurvey] = useState({});
+      const [gameDate] = useState(() => new Date());
+
+      const upFp = (k, v) => setFp(p => ({ ...p, [k]: v }));
+      const togEv = (id) => setEvSt(p => { if (p[id] && p[id].sel) { const n = { ...p }; delete n[id]; return n; } return { ...p, [id]: { sel: true } }; });
+      const updEv = (id, k, v) => setEvSt(p => ({ ...p, [id]: { ...(p[id] || { sel: true }), [k]: v } }));
+
+      const canP1 = fp.finalAsset !== "" && fp.knowledge !== "";
+      const canP3 = SURVEY.every(q => (survey[q.id] || 0) > 0);
+      const scores = ph === 4 ? calcScores({ ...fp, evSt, survey }) : null;
+      const grade = ph === 4 && scores ? calcGrade(scores) : null;
+
+      const reset = () => { setSurvey({}); setEvSt({}); setFp({ playerName: "", finalAsset: "", knowledge: "", green: "", red: "", blue: "" }); setPh(1); };
+
+      return (
+        <div className="wrap">
+          <div className="hdr">
+            <Sparkle color="#FFCA3A" size={18} style={{ left: "8%", top: "6px" }} />
+            <Sparkle color="#FF5CA8" size={14} style={{ right: "12%", top: "0px", animationDelay: "0.6s" }} />
+            <Sparkle color="#4EA8FF" size={12} style={{ right: "6%", top: "34px", animationDelay: "1.1s" }} />
+            <Sparkle color="#38D996" size={13} style={{ left: "14%", top: "38px", animationDelay: "0.3s" }} />
+            <div className="logo-main">ナイストミードウ！！</div>
+            <div className="logo-sub">― 富 道 ―</div>
+            <div className="tagline">人生シミュレーション スコア計算機</div>
+            <div className="steps">
+              {[["基本", 1], ["イベント", 2], ["質問", 3], ["結果", 4]].map(([l, n]) => (
+                <div key={n} className={`stp ${ph > n ? "don" : ph === n ? "act" : "idl"}`}>
+                  <div className="stp-n">{ph > n ? "✓" : n}</div>
+                  <div className="stp-l">{l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div key={ph} className="fin">
+            {ph === 1 && (
+              <Fragment>
+                <div className="ph-ttl">基本情報を入力</div>
+                <div className="ph-sub">名前と、ゲーム終了時の数値を入力してください</div>
+                <div className="card">
+                  <div className="ct">プレイヤー情報</div>
+                  <label className="lbl">名前</label>
+                  <input className="inp" type="text" value={fp.playerName} onChange={(e) => upFp("playerName", e.target.value)} placeholder="例：山田 太郎" maxLength={20} />
+                </div>
+                <div className="card">
+                  <div className="ct">ゲームの数値</div>
+                  <label className="lbl">ゲーム終了時の資産額</label>
+                  <input className="inp" type="number" inputMode="numeric" value={fp.finalAsset} onChange={(e) => upFp("finalAsset", e.target.value)} placeholder="例：100" />
+                  <label className="lbl">知識カードの枚数</label>
+                  <input className="inp" type="number" inputMode="numeric" min="0" value={fp.knowledge} onChange={(e) => upFp("knowledge", e.target.value)} placeholder="例：3" />
+                </div>
+                <div className="card">
+                  <div className="ct">起業カードの枚数</div>
+                  <div className="r3">
+                    {[["green","#38D996","緑"],["red","#FF5CA8","赤"],["blue","#4EA8FF","青"]].map(([k,col,lbl]) => (
+                      <div key={k} className="sc2">
+                        <div style={{ fontSize: 13, marginBottom: 8, fontWeight: 800 }}>
+                          <span style={{ display: "inline-block", width: 11, height: 11, borderRadius: "50%", background: col, marginRight: 5, verticalAlign: "middle" }} />
+                          <span style={{ color: col }}>{lbl}</span>
+                        </div>
+                        <input className="inp" type="number" inputMode="numeric" min="0" value={fp[k]} onChange={(e) => upFp(k, e.target.value)} placeholder="0" style={{ textAlign: "center", padding: "10px 4px", fontSize: 20, fontWeight: 800 }} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <button className="btn" onClick={() => setPh(2)} disabled={!canP1}>次へ進む →</button>
+              </Fragment>
+            )}
+
+            {ph === 2 && (
+              <Fragment>
+                <button className="bk" onClick={() => setPh(1)}>← 戻る</button>
+                <div className="ph-ttl">イベントカードを選ぶ</div>
+                <div className="ph-sub">ゲーム中に引いたカードをすべて選んでください（複数選択可）</div>
+                <div className="evgrid">
+                  {EVENTS.map((ev) => {
+                    const st = evSt[ev.id] || {};
+                    return (
+                      <div key={ev.id} className={`evc${st.sel ? " sel" : ""}`} onClick={() => togEv(ev.id)}>
+                        <div className="evn">{ev.name}</div>
+                        {st.sel && (ev.act || ev.sp) && (
+                          <div className="det" onClick={(e) => e.stopPropagation()}>
+                            {ev.act && (<Fragment>
+                              <div className="dq">実際に行いましたか？</div>
+                              <div className="rbg">{[[true,"はい"],[false,"いいえ"]].map(([v,l]) => (<button key={l} className={`rb${st.done === v ? " on" : ""}`} onClick={() => updEv(ev.id, "done", v)}>{l}</button>))}</div>
+                            </Fragment>)}
+                            {ev.sp === "disaster" && (<div style={{ marginTop: ev.act ? 10 : 0 }}>
+                              <div className="dq">保険カードで回避できましたか？</div>
+                              <div className="rbg">{[[true,"はい"],[false,"いいえ"]].map(([v,l]) => (<button key={l} className={`rb${st.insured === v ? " on" : ""}`} onClick={() => updEv(ev.id, "insured", v)}>{l}</button>))}</div>
+                            </div>)}
+                            {ev.sp === "fraud" && (<Fragment>
+                              <div className="dq">知識カードで完全に防げましたか？</div>
+                              <div className="rbg">{[[true,"防げた"],[false,"防げなかった"]].map(([v,l]) => (<button key={l} className={`rb${st.fullPrev === v ? " on" : ""}`} onClick={() => updEv(ev.id, "fullPrev", v)}>{l}</button>))}</div>
+                              <div className="dq" style={{ marginTop: 8 }}>知識で防いだ金額（任意）</div>
+                              <input className="smli" type="number" inputMode="numeric" min="0" value={st.prevAmt || ""} onChange={(e) => updEv(ev.id, "prevAmt", e.target.value)} placeholder="0" onClick={(e) => e.stopPropagation()} />
+                            </Fragment>)}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                <button className="btn" onClick={() => setPh(3)}>次へ進む →</button>
+              </Fragment>
+            )}
+
+            {ph === 3 && (
+              <Fragment>
+                <button className="bk" onClick={() => setPh(2)}>← 戻る</button>
+                <div className="ph-ttl">アンケート</div>
+                <div className="ph-sub">普段のあなたについて、1（あてはまらない）〜5（あてはまる）で答えてください</div>
+                {SURVEY.map((q, i) => (
+                  <div key={q.id} className="card">
+                    <div className="qn">質問 {i + 1}</div>
+                    <div className="qt">{q.text}</div>
+                    <div className="lk">{[1,2,3,4,5].map((v) => (<button key={v} className={`lkb${survey[q.id] === v ? " on" : ""}`} onClick={() => setSurvey(p => ({ ...p, [q.id]: v }))}>{v}</button>))}</div>
+                    <div className="lkll"><span>あてはまらない</span><span>あてはまる</span></div>
+                  </div>
+                ))}
+                <button className="btn" onClick={() => setPh(4)} disabled={!canP3}>スコアを計算する</button>
+              </Fragment>
+            )}
+
+            {ph === 4 && scores && grade && (
+              <ResultScreen fp={fp} scores={scores} grade={grade} survey={survey} gameDate={gameDate} onReset={reset} />
+            )}
+          </div>
+
+          <div className="admin-link"><a href="admin.html">管理者ページ →</a></div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
