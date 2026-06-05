@@ -156,16 +156,14 @@
     const { useState, useEffect, useRef, Fragment } = React;
 
     // ============================================================
-    //  Supabase設定（APIキーを取得したら、ここに貼り付けてください）
+    //  Supabase設定
     // ============================================================
-    const SUPABASE_URL  = "https://bgpevzoncxampykakurt.supabase.co";      // 例: https://xxxxx.supabase.co
-    const SUPABASE_KEY  = "sb_publishable_bSCxwc0Vwazjy0RYiMlfRA_kWwpA6Ne";  // 例: eyJhbGciOiJIUz...
+    const SUPABASE_URL  = "https://bgpevzoncxampykakurt.supabase.co";
+    const SUPABASE_KEY  = "sb_publishable_bSCxwc0Vwazjy0RYiMlfRA_kWwpA6Ne";
     // ============================================================
 
     const _sbReady = SUPABASE_URL !== "YOUR_SUPABASE_URL" && SUPABASE_KEY !== "YOUR_SUPABASE_ANON_KEY";
     const db = _sbReady ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
-
-    const DB_KEY = "nice_tomidou_results_v1"; // localStorage fallback用
 
     const AXIS_CONFIG = {
       asset:         { label: "資産",     min: 20, max: 100 },
@@ -395,16 +393,21 @@
       const advice = chartAdvice(scores);
 
       useEffect(() => {
-        try {
-          const existing = JSON.parse(localStorage.getItem(DB_KEY) || "[]");
-          existing.push({
-            id: Date.now(), name: fp.playerName || "プレイヤー", date: gameDate.toISOString(),
-            grade: grade.letter, gradeTitle: grade.title, avg: Math.round(grade.avg * 10) / 10,
-            relType: rel.label,
-            scores: { asset: scores.asset, competence: scores.competence, relationships: scores.relationships, luck: scores.luck, mind: scores.mind },
-          });
-          localStorage.setItem(DB_KEY, JSON.stringify(existing));
-        } catch (e) {}
+        // Supabase に結果を保存（APIキー未設定時はスキップ）
+        if (db) {
+          db.from("results").insert({
+            name: fp.playerName || "プレイヤー",
+            grade: grade.letter,
+            grade_title: grade.title,
+            avg: Math.round(grade.avg * 10) / 10,
+            rel_type: rel.label,
+            asset: scores.asset,
+            competence: scores.competence,
+            relationships: scores.relationships,
+            luck: scores.luck,
+            mind: scores.mind,
+          }).then(({ error }) => { if (error) console.warn("Supabase insert error:", error.message); });
+        }
 
         if (window.confetti) {
           const counts = { S: 220, A: 150, B: 110, C: 80, D: 60 };
@@ -490,6 +493,9 @@
               <ResultRadarChart scores={scores} />
             </div>
 
+            <div className="capture-footer">ナイストミードウ（富道）！！</div>
+          </div>
+
             <div className="scards-title">スコア一覧</div>
             {STATS.map(({ id, en, jp, color }) => {
               const v = scores[id];
@@ -507,9 +513,6 @@
                 </div>
               );
             })}
-
-            <div className="capture-footer">ナイストミードウ（富道）！！</div>
-          </div>
 
           <div className="share-sec">
             <div className="share-ttl">結果を保存・シェア</div>
