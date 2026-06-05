@@ -249,8 +249,8 @@
           {rays}{laurel(-1)}{laurel(1)}
           <circle cx={cx} cy={cy} r="76" fill="none" stroke={color} strokeWidth="1.8" opacity="0.35" />
           {beads}
-          <circle cx={cx} cy={cy} r="62" fill={`url(#mg-${letter})`} />
-          <circle cx={cx} cy={cy} r="62" fill={`url(#ms-${letter})`} />
+          <circle cx={cx} cy={cy} r="62" fill={color} />
+          <circle cx={cx} cy={cy} r="62" fill="rgba(255,255,255,0.2)" />  
           <circle cx={cx} cy={cy} r="53" fill="none" stroke="#fff" strokeWidth="1.8" opacity="0.5" />
           <text x={cx} y={cy+3} textAnchor="middle" dominantBaseline="central" fontFamily="'JetBrains Mono', monospace" fontSize="60" fontWeight="800" fill="#fff">{letter}</text>
         </svg>
