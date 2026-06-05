@@ -488,19 +488,22 @@
 
       async function makeCanvas() {
         if (!captureRef.current || !window.html2canvas) return null;
-        // メダルcanvasをimgに差し替えてからスクショ（html2canvas互換対策）
-        const medalCanvas = captureRef.current.querySelector("canvas.medallion");
-        let medalImg = null;
-        if (medalCanvas) {
-          medalImg = document.createElement("img");
-          medalImg.src = medalCanvas.toDataURL("image/png");
-          medalImg.style.cssText = medalCanvas.style.cssText;
-          medalImg.style.width = "170px";
-          medalImg.style.height = "170px";
-          medalImg.style.display = "block";
-          medalImg.style.margin = "0 auto 4px";
-          medalCanvas.parentNode.replaceChild(medalImg, medalCanvas);
-        }
+        // すべてのcanvasをimgに差し替え（html2canvas互換対策）
+        const replacements = [];
+        captureRef.current.querySelectorAll("canvas").forEach(c => {
+          try {
+            const img = document.createElement("img");
+            img.src = c.toDataURL("image/png");
+            img.style.cssText = c.style.cssText;
+            img.style.width = c.offsetWidth + "px";
+            img.style.height = c.offsetHeight + "px";
+            img.style.display = "block";
+            c.parentNode.replaceChild(img, c);
+            replacements.push({ img, canvas: c });
+          } catch(e) {}
+        });
+        // フォント読み込み待ち
+        await document.fonts.ready;
         try {
           return await window.html2canvas(captureRef.current, {
             scale: 2,
@@ -511,10 +514,9 @@
             foreignObjectRendering: false,
           });
         } finally {
-          // 元のcanvasに戻す
-          if (medalImg && medalImg.parentNode) {
-            medalImg.parentNode.replaceChild(medalCanvas, medalImg);
-          }
+          replacements.forEach(({ img, canvas }) => {
+            if (img.parentNode) img.parentNode.replaceChild(canvas, img);
+          });
         }
       }
       const fileName = `ナイストミードウ_${fp.playerName || "プレイヤー"}.png`;
