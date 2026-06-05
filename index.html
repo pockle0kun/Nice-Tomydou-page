@@ -488,14 +488,34 @@
 
       async function makeCanvas() {
         if (!captureRef.current || !window.html2canvas) return null;
-        return await window.html2canvas(captureRef.current, {
-          scale: 2,
-          backgroundColor: "#ffffff",
-          logging: false,
-          useCORS: true,
-          allowTaint: true,
-          foreignObjectRendering: false,
-        });
+        // メダルcanvasをimgに差し替えてからスクショ（html2canvas互換対策）
+        const medalCanvas = captureRef.current.querySelector("canvas.medallion");
+        let medalImg = null;
+        if (medalCanvas) {
+          medalImg = document.createElement("img");
+          medalImg.src = medalCanvas.toDataURL("image/png");
+          medalImg.style.cssText = medalCanvas.style.cssText;
+          medalImg.style.width = "170px";
+          medalImg.style.height = "170px";
+          medalImg.style.display = "block";
+          medalImg.style.margin = "0 auto 4px";
+          medalCanvas.parentNode.replaceChild(medalImg, medalCanvas);
+        }
+        try {
+          return await window.html2canvas(captureRef.current, {
+            scale: 2,
+            backgroundColor: "#ffffff",
+            logging: false,
+            useCORS: true,
+            allowTaint: true,
+            foreignObjectRendering: false,
+          });
+        } finally {
+          // 元のcanvasに戻す
+          if (medalImg && medalImg.parentNode) {
+            medalImg.parentNode.replaceChild(medalCanvas, medalImg);
+          }
+        }
       }
       const fileName = `ナイストミードウ_${fp.playerName || "プレイヤー"}.png`;
       const shareText = `ナイストミードウ！！の富道診断で、私は「${grade.title}」でした！\n総合達成度 ${Math.round(grade.avg)}%\n#ナイストミードウ #富道`;
