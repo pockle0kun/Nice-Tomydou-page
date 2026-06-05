@@ -393,21 +393,31 @@
       const advice = chartAdvice(scores);
 
       useEffect(() => {
-        // Supabase に結果を保存（APIキー未設定時はスキップ）
-        if (db) {
-          db.from("results").insert({
-            name: fp.playerName || "プレイヤー",
-            grade: grade.letter,
-            grade_title: grade.title,
-            avg: Math.round(grade.avg * 10) / 10,
-            rel_type: rel.label,
-            asset: scores.asset,
-            competence: scores.competence,
-            relationships: scores.relationships,
-            luck: scores.luck,
-            mind: scores.mind,
-          }).then(({ error }) => { if (error) console.warn("Supabase insert error:", error.message); });
-        }
+        // Supabase に結果を保存
+        try {
+          const client = window.supabase
+            ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+            : null;
+          if (client) {
+            client.from("results").insert({
+              name: fp.playerName || "プレイヤー",
+              grade: grade.letter,
+              grade_title: grade.title,
+              avg: Math.round(grade.avg * 10) / 10,
+              rel_type: rel.label,
+              asset: scores.asset,
+              competence: scores.competence,
+              relationships: scores.relationships,
+              luck: scores.luck,
+              mind: scores.mind,
+            }).then(({ error }) => {
+              if (error) console.warn("Supabase insert error:", error.message);
+              else console.log("Supabase insert OK");
+            });
+          } else {
+            console.warn("Supabase client not available");
+          }
+        } catch(e) { console.warn("Supabase init error:", e.message); }
 
         if (window.confetti) {
           const counts = { S: 220, A: 150, B: 110, C: 80, D: 60 };
