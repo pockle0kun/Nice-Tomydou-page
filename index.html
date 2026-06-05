@@ -169,11 +169,11 @@
       asset:         { label: "資産",     min: 20, max: 100 },
       competence:    { label: "能力",     min: 0,  max: 100 },
       relationships: { label: "人間関係", min: 0,  max: 60 },
-      luck:          { label: "運・富度",       min: 10, max: 40 },
+      luck:          { label: "運",       min: 10, max: 40 },
       mind:          { label: "起業精神", min: 0,  max: 80 },
     };
-    const RADAR_KEYS = ["luck", "asset", "competence", "relationships", "mind"];
-    const JP_LABEL = { asset: "資産", competence: "能力", relationships: "人間関係", luck: "運・富度", mind: "起業精神" };
+    const RADAR_KEYS = ["asset", "competence", "relationships", "luck", "mind"];
+    const JP_LABEL = { asset: "資産", competence: "能力", relationships: "人間関係", luck: "運", mind: "起業精神" };
     const normalize = (v, min, max) => Math.max(0, Math.min(100, ((v - min) / (max - min)) * 100));
 
     // グレード（戦略には触れず、等級のみ）
@@ -215,46 +215,93 @@
       const best = sorted[0], worst = sorted[sorted.length - 1];
       if (best.pct - worst.pct < 8) return "5つの力がバランス良く整っています。理想的な五角形です。";
       if (worst.k === "relationships") return "人とのつながりを意識すると、五角形がさらに整います。";
-      return `「${JP_LABEL[worst.k]}」が伸びるような意識をすると、自分のできることが増えていくよ。`;
+      return `「${JP_LABEL[worst.k]}」が伸びると、五角形のバランスが良くなります。`;
     }
 
     function GradeMedallion({ grade }) {
       const { letter, color, light } = grade;
-      const cx = 110, cy = 108;
-      const rays = [], beads = [];
-      for (let i = 0; i < 36; i++) {
-        const a = (i * 10) * Math.PI / 180;
-        const long = i % 3 === 0;
-        const r1 = 80, r2 = long ? 102 : 92;
-        rays.push(<line key={"r"+i} x1={cx + r1*Math.cos(a)} y1={cy + r1*Math.sin(a)} x2={cx + r2*Math.cos(a)} y2={cy + r2*Math.sin(a)} stroke={color} strokeWidth={long ? 2.8 : 1.2} opacity="0.28" strokeLinecap="round" />);
-      }
-      for (let i = 0; i < 40; i++) {
-        const a = (i * 9) * Math.PI / 180; const r = 70;
-        beads.push(<circle key={"b"+i} cx={cx + r*Math.cos(a)} cy={cy + r*Math.sin(a)} r="1.7" fill={color} opacity="0.45" />);
-      }
-      const laurel = (side) => {
-        const items = []; const dir = side;
-        for (let i = 0; i < 5; i++) {
-          const lx = cx + dir * (28 + i * 12); const ly = cy + 60 - i * 14;
-          items.push(<ellipse key={side+"l"+i} cx={lx} cy={ly} rx="8" ry="3.4" fill={color} opacity={0.5 - i*0.04} transform={`rotate(${dir < 0 ? 35 + i*8 : -35 - i*8} ${lx} ${ly})`} />);
+      const canvasRef = useRef(null);
+      useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const s = canvas.width;
+        const ctx = canvas.getContext("2d");
+        const cx = s / 2, cy = s / 2;
+        ctx.clearRect(0, 0, s, s);
+        // 放射線
+        for (let i = 0; i < 36; i++) {
+          const a = (i * 10) * Math.PI / 180;
+          const long = i % 3 === 0;
+          const r1 = s * 0.36, r2 = s * (long ? 0.465 : 0.418);
+          ctx.beginPath();
+          ctx.moveTo(cx + r1*Math.cos(a), cy + r1*Math.sin(a));
+          ctx.lineTo(cx + r2*Math.cos(a), cy + r2*Math.sin(a));
+          ctx.strokeStyle = color + "48";
+          ctx.lineWidth = long ? 2.5 : 1.2;
+          ctx.lineCap = "round";
+          ctx.stroke();
         }
-        return items;
-      };
-      return (
-        <svg viewBox="0 0 220 220" width="170" height="170" className="medallion">
-          <defs>
-            <linearGradient id={"mg-"+letter} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={light} /><stop offset="100%" stopColor={color} /></linearGradient>
-            <radialGradient id={"ms-"+letter} cx="0.5" cy="0.3" r="0.72"><stop offset="0%" stopColor="#fff" stopOpacity="0.6" /><stop offset="55%" stopColor="#fff" stopOpacity="0.1" /><stop offset="100%" stopColor="#fff" stopOpacity="0" /></radialGradient>
-          </defs>
-          {rays}{laurel(-1)}{laurel(1)}
-          <circle cx={cx} cy={cy} r="76" fill="none" stroke={color} strokeWidth="1.8" opacity="0.35" />
-          {beads}
-          <circle cx={cx} cy={cy} r="62" fill={color} />
-          <circle cx={cx} cy={cy} r="62" fill="rgba(255,255,255,0.2)" />  
-          <circle cx={cx} cy={cy} r="53" fill="none" stroke="#fff" strokeWidth="1.8" opacity="0.5" />
-          <text x={cx} y={cy+3} textAnchor="middle" dominantBaseline="central" fontFamily="'JetBrains Mono', monospace" fontSize="60" fontWeight="800" fill="#fff">{letter}</text>
-        </svg>
-      );
+        // 月桂樹
+        [-1, 1].forEach(dir => {
+          for (let i = 0; i < 5; i++) {
+            const lx = cx + dir * (s*0.127 + i*s*0.055);
+            const ly = cy + s*0.273 - i*s*0.064;
+            const angle = (dir < 0 ? 35 + i*8 : -35 - i*8) * Math.PI / 180;
+            ctx.save();
+            ctx.translate(lx, ly);
+            ctx.rotate(angle);
+            ctx.beginPath();
+            ctx.ellipse(0, 0, s*0.036, s*0.015, 0, 0, Math.PI*2);
+            ctx.fillStyle = color + Math.round((0.5 - i*0.04)*255).toString(16).padStart(2,"0");
+            ctx.fill();
+            ctx.restore();
+          }
+        });
+        // 外縁円
+        ctx.beginPath();
+        ctx.arc(cx, cy, s*0.345, 0, Math.PI*2);
+        ctx.strokeStyle = color + "5a";
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+        // ビーズ
+        for (let i = 0; i < 40; i++) {
+          const a = (i * 9) * Math.PI / 180;
+          ctx.beginPath();
+          ctx.arc(cx + s*0.318*Math.cos(a), cy + s*0.318*Math.sin(a), 1.7, 0, Math.PI*2);
+          ctx.fillStyle = color + "72";
+          ctx.fill();
+        }
+        // メインサークル（グラデーション）
+        const grad = ctx.createLinearGradient(cx, cy - s*0.28, cx, cy + s*0.28);
+        grad.addColorStop(0, light);
+        grad.addColorStop(1, color);
+        ctx.beginPath();
+        ctx.arc(cx, cy, s*0.282, 0, Math.PI*2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+        // 光沢
+        const shine = ctx.createRadialGradient(cx, cy - s*0.08, 0, cx, cy, s*0.28);
+        shine.addColorStop(0, "rgba(255,255,255,0.55)");
+        shine.addColorStop(0.5, "rgba(255,255,255,0.1)");
+        shine.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.beginPath();
+        ctx.arc(cx, cy, s*0.282, 0, Math.PI*2);
+        ctx.fillStyle = shine;
+        ctx.fill();
+        // 内縁
+        ctx.beginPath();
+        ctx.arc(cx, cy, s*0.241, 0, Math.PI*2);
+        ctx.strokeStyle = "rgba(255,255,255,0.5)";
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+        // グレード文字
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#fff";
+        ctx.font = `800 ${Math.round(s*0.27)}px 'JetBrains Mono', monospace`;
+        ctx.fillText(letter, cx, cy + 2);
+      }, [letter, color, light]);
+      return <canvas ref={canvasRef} width={220} height={220} className="medallion" style={{ width: 170, height: 170 }} />;
     }
 
     function ResultRadarChart({ scores }) {
@@ -347,10 +394,10 @@
     ];
 
     const STATS = [
-      { id: "luck",          en: "Luck",          jp: "運・富度",       color: "#9B5DE5" },
       { id: "asset",         en: "Asset",         jp: "資産",     color: "#FF9F1C" },
       { id: "competence",    en: "Competence",    jp: "能力",     color: "#2EC4B6" },
       { id: "relationships", en: "Relationships", jp: "人間関係", color: "#FF5CA8" },
+      { id: "luck",          en: "Luck",          jp: "運",       color: "#9B5DE5" },
       { id: "mind",          en: "Mind",          jp: "精神",     color: "#38D996" },
     ];
 
@@ -441,10 +488,17 @@
 
       async function makeCanvas() {
         if (!captureRef.current || !window.html2canvas) return null;
-        return await window.html2canvas(captureRef.current, { scale: 2, backgroundColor: "#ffffff", logging: false, useCORS: true, allowTaint: true, foreignObjectRendering: false });
+        return await window.html2canvas(captureRef.current, {
+          scale: 2,
+          backgroundColor: "#ffffff",
+          logging: false,
+          useCORS: true,
+          allowTaint: true,
+          foreignObjectRendering: false,
+        });
       }
       const fileName = `ナイストミードウ_${fp.playerName || "プレイヤー"}.png`;
-      const shareText = `ナイストミードウ！！の富道診断で、あなたは「${grade.title}」でした！\n総合達成度 ${Math.round(grade.avg)}%\n#ナイストミードウ #富道`;
+      const shareText = `ナイストミードウ！！の富道診断で、私は「${grade.title}」でした！\n総合達成度 ${Math.round(grade.avg)}%\n#ナイストミードウ #富道`;
 
       async function handleDownload() {
         setBusy(true);
@@ -504,9 +558,9 @@
             </div>
 
             <div className="capture-footer">ナイストミードウ（富道）！！</div>
-          </div>
+          </div>{/* ここまでがスクショ範囲 */}
 
-            <div className="scards-title">スコア一覧</div>
+          <div className="scards-title">スコア一覧</div>
             {STATS.map(({ id, en, jp, color }) => {
               const v = scores[id];
               const pct = normalize(v, AXIS_CONFIG[id].min, AXIS_CONFIG[id].max);
@@ -586,7 +640,7 @@
                 <div className="card">
                   <div className="ct">プレイヤー情報</div>
                   <label className="lbl">名前</label>
-                  <input className="inp" type="text" value={fp.playerName} onChange={(e) => upFp("playerName", e.target.value)} placeholder="例：ともっぴ" maxLength={20} />
+                  <input className="inp" type="text" value={fp.playerName} onChange={(e) => upFp("playerName", e.target.value)} placeholder="例：山田 太郎" maxLength={20} />
                 </div>
                 <div className="card">
                   <div className="ct">ゲームの数値</div>
