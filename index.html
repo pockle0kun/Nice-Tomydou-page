@@ -172,7 +172,7 @@
       luck:          { label: "運・富度",       min: 10, max: 40 },
       mind:          { label: "起業精神", min: 0,  max: 80 },
     };
-    const RADAR_KEYS = ["asset", "competence", "relationships", "luck", "mind"];
+    const RADAR_KEYS = ["luck", "asset", "competence", "relationships", "mind"];
     const JP_LABEL = { asset: "資産", competence: "能力", relationships: "人間関係", luck: "運・富度", mind: "起業精神" };
     const normalize = (v, min, max) => Math.max(0, Math.min(100, ((v - min) / (max - min)) * 100));
 
