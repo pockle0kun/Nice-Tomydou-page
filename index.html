@@ -6,8 +6,10 @@
   <meta name="description" content="ナイストミードウ（富道）！！ 公式スコア計算機">
   <meta name="theme-color" content="#9B5DE5">
   <title>ナイストミードウ（富道）！！</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&family=JetBrains+Mono:wght@700;800&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     html, body {
       background: linear-gradient(175deg, #FFF2FB 0%, #F1EEFF 45%, #EAF6FF 100%);
@@ -488,22 +490,23 @@
 
       async function makeCanvas() {
         if (!captureRef.current || !window.html2canvas) return null;
+        // フォント読み込み＋描画完了を待つ
+        await document.fonts.ready;
+        await new Promise(r => setTimeout(r, 300));
         // すべてのcanvasをimgに差し替え（html2canvas互換対策）
         const replacements = [];
         captureRef.current.querySelectorAll("canvas").forEach(c => {
           try {
             const img = document.createElement("img");
             img.src = c.toDataURL("image/png");
-            img.style.cssText = c.style.cssText;
             img.style.width = c.offsetWidth + "px";
             img.style.height = c.offsetHeight + "px";
             img.style.display = "block";
+            img.style.margin = "0 auto";
             c.parentNode.replaceChild(img, c);
             replacements.push({ img, canvas: c });
           } catch(e) {}
         });
-        // フォント読み込み待ち
-        await document.fonts.ready;
         try {
           return await window.html2canvas(captureRef.current, {
             scale: 2,
@@ -511,7 +514,6 @@
             logging: false,
             useCORS: true,
             allowTaint: true,
-            foreignObjectRendering: false,
           });
         } finally {
           replacements.forEach(({ img, canvas }) => {
